@@ -1,12 +1,8 @@
-*.class
+# Add any directories, files, or patterns you don't want to be tracked by version control
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+# maven target directories
+**/target
 
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
+# IDEA project
+**/*.iml
+**/.idea
