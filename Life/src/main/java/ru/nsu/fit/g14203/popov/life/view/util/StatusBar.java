@@ -2,15 +2,13 @@ package ru.nsu.fit.g14203.popov.life.view.util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * | Hint area                      | CAP | NUM | SCR |
- */
 public class StatusBar extends JPanel {
 
-    private JLabel hintLabel = new JLabel("Hint area");
+    private JLabel hintLabel = new JLabel();
 
     private JLabel capsLabel = new JLabel("CAP");
     private JLabel numLabel = new JLabel("NUM");
@@ -23,28 +21,45 @@ public class StatusBar extends JPanel {
         setLayout(gridBagLayout);
 
 //        ------   Hint area   ------
-        hintLabel.setPreferredSize(new Dimension(16, 16));
         add(hintLabel);
         gridBagLayout.addLayoutComponent(hintLabel, new GridBagConstraints(0, 0, 1,
                 1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 0, 0, 0), 0, 0));
+                new Insets(0, 5, 0, 0), 0, 0));
+
+        GridBagConstraints constraints = new GridBagConstraints(GridBagConstraints.RELATIVE, 0, 1,
+                1, 0.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE,
+                new Insets(0, 0, 0,5), 0, 0);
+
 //        ------   CAP   ------
-        capsLabel.setPreferredSize(new Dimension(16, 16));
         add(capsLabel);
-        gridBagLayout.addLayoutComponent(capsLabel, new GridBagConstraints(1, 0, 1,
-                1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE,
-                new Insets(0, 0, 0, 0), 0, 0));
+        gridBagLayout.addLayoutComponent(capsLabel, constraints);
 //        ------   NUM   ------
-        numLabel.setPreferredSize(new Dimension(16, 16));
         add(numLabel);
-        gridBagLayout.addLayoutComponent(numLabel, new GridBagConstraints(1, 0, 1,
-                1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE,
-                new Insets(0, 0, 0, 0), 0, 0));
+        gridBagLayout.addLayoutComponent(numLabel, constraints);
 //        ------   SCR   ------
-        scrollLabel.setPreferredSize(new Dimension(16, 16));
         add(scrollLabel);
-        gridBagLayout.addLayoutComponent(scrollLabel, new GridBagConstraints(1, 0, 1,
-                1, 1.0, 1.0, GridBagConstraints.SOUTH, GridBagConstraints.NONE,
-                new Insets(0, 0, 0, 0), 0, 0));
+        gridBagLayout.addLayoutComponent(scrollLabel, constraints);
+    }
+
+    public void addComponent(JComponent component, String text) {
+        hints.put(component, text);
+    }
+
+    public void setActiveComponent(JComponent component) {
+        if (component == null)
+            hintLabel.setText(null);
+        else
+            hintLabel.setText(hints.get(component));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        capsLabel.setEnabled(toolkit.getLockingKeyState(KeyEvent.VK_CAPS_LOCK));
+        numLabel.setEnabled(toolkit.getLockingKeyState(KeyEvent.VK_NUM_LOCK));
+        scrollLabel.setEnabled(toolkit.getLockingKeyState(KeyEvent.VK_SCROLL_LOCK));
+
+        g.clearRect(0, 0, getWidth(), getHeight());
+        repaint();
     }
 }

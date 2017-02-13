@@ -4,10 +4,15 @@ import ru.nsu.fit.g14203.popov.life.view.util.StatusBar;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 
 public class MainFrame extends JFrame {
+
+    private JMenuBar menuBar = new JMenuBar();
+    private JToolBar toolBar = new JToolBar();
+    private StatusBar statusBar = new StatusBar();
+
+    private GamePanel gamePanel = new GamePanel();
 
     public MainFrame() {
         super("Life");
@@ -28,110 +33,118 @@ public class MainFrame extends JFrame {
         ImageIcon aboutIcon = new ImageIcon(MainFrame.class.getResource("About.png"));
 
 //        ------   menus   ------
-        JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
 //              ------   File   ------
-        JMenu fileMenu = new JMenu("File");
-        fileMenu.setMnemonic(KeyEvent.VK_F);
-        menuBar.add(fileMenu);
+        JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
 //                      ------   New   ------
-        JMenuItem newMenuItem = new JMenuItem("New", newIcon);
-        newMenuItem.addActionListener(e -> newAction());
-        newMenuItem.setMnemonic(KeyEvent.VK_N);
-        fileMenu.add(newMenuItem);
+        JMenuItem newMenuItem = addMenuItem(fileMenu, "New", newIcon, KeyEvent.VK_N,
+                "Create new empty field", e -> newAction());
 //                      ------   Open   ------
-        JMenuItem openMenuItem = new JMenuItem("Open", openIcon);
-        newMenuItem.addActionListener(e -> openAction());
-        newMenuItem.setMnemonic(KeyEvent.VK_O);
-        fileMenu.add(openMenuItem);
+        JMenuItem openMenuItem = addMenuItem(fileMenu, "Open", openIcon, KeyEvent.VK_O,
+                "Open a field in game", e -> openAction());
 //                      ------   Save   ------
-        JMenuItem saveMenuItem = new JMenuItem("Save", saveIcon);
-        newMenuItem.addActionListener(e -> saveAction());
-        newMenuItem.setMnemonic(KeyEvent.VK_S);
-        fileMenu.add(saveMenuItem);
+        JMenuItem saveMenuItem = addMenuItem(fileMenu, "Save", saveIcon, KeyEvent.VK_S,
+                "Save field", e -> saveAction());
 //                      ------      ------
         fileMenu.addSeparator();
 //                      ------   Exit   ------
-        JMenuItem exitMenuItem = new JMenuItem("Exit", exitIcon);
-        exitMenuItem.addActionListener(e -> exitAction());
-        exitMenuItem.setMnemonic(KeyEvent.VK_X);
-        fileMenu.add(exitMenuItem);
+        addMenuItem(fileMenu, "Exit", exitIcon, KeyEvent.VK_X,
+                "Quit game", e -> exitAction());
 //              ------   Edit   ------
-        JMenu editMenu = new JMenu("Edit");
-        editMenu.setMnemonic(KeyEvent.VK_E);
-        menuBar.add(editMenu);
+        JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
 //              ------   View   ------
-        JMenu viewMenu = new JMenu("View");
-        viewMenu.setMnemonic(KeyEvent.VK_V);
-        menuBar.add(viewMenu);
+        JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
 //              ------   Help   ------
-        JMenu helpMenu = new JMenu("Help");
-        helpMenu.setMnemonic(KeyEvent.VK_H);
-        menuBar.add(helpMenu);
+        JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
 //                      ------   About   ------
-        JMenuItem aboutMenuItem = new JMenuItem("About", aboutIcon);
-        aboutMenuItem.addActionListener(e -> aboutAction());
-        aboutMenuItem.setMnemonic(KeyEvent.VK_A);
-        helpMenu.add(aboutMenuItem);
+        JMenuItem aboutMenuItem = addMenuItem(helpMenu, "About", aboutIcon, KeyEvent.VK_A,
+                "Show information about Life", e -> aboutAction());
 
 //        ------   toolbar   ------
-        JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
         add(toolBar);
 //        ------   New   ------
-        JButton newButton = new JButton(newIcon);
-        newButton.setToolTipText("New");
-        newButton.addActionListener(e -> newAction());
-        addOnToolbar(toolBar, newButton);
+        addToolbarButton(newMenuItem);
 //        ------   Open   ------
-        JButton openButton = new JButton(openIcon);
-        openButton.setToolTipText("Open");
-        openButton.addActionListener(e -> openAction());
-        addOnToolbar(toolBar, openButton);
+        addToolbarButton(openMenuItem);
 //        ------   Save   ------
-        JButton saveButton = new JButton(saveIcon);
-        saveButton.setToolTipText("Save");
-        saveButton.addActionListener(e -> saveAction());
-        addOnToolbar(toolBar, saveButton);
+        addToolbarButton(saveMenuItem);
 //        ------      -------
         toolBar.addSeparator();
 //        ------   About   ------
-        JButton aboutButton = new JButton(aboutIcon);
-        aboutButton.setToolTipText("About");
-        aboutButton.addActionListener(e -> aboutAction());
-        addOnToolbar(toolBar, aboutButton);
+        addToolbarButton(aboutMenuItem);
 
 //        ------   status bar   ------
-        StatusBar statusBar = new StatusBar();
         add(statusBar);
 
 //        ------   layout   ------
         GridBagLayout gridBagLayout = new GridBagLayout();
         setLayout(gridBagLayout);
-
-//        ------   toolbar location   ------
+//        ------   toolbar   ------
         gridBagLayout.addLayoutComponent(toolBar, new GridBagConstraints(0, 0, 1,
                 1, 1.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 0, 0, 0), 0, 10));
-//        ------   game panel location   ------
-        JPanel panel = new JPanel();    //  tmp
-        add(panel);
-        gridBagLayout.addLayoutComponent(panel, new GridBagConstraints(0, 1, 1,
+                new Insets(0, 0, 0, 0), 0, 16));
+//        ------   game panel   ------
+        add(gamePanel);
+        gamePanel.setBackground(Color.PINK);
+        gridBagLayout.addLayoutComponent(gamePanel, new GridBagConstraints(0, 1, 1,
                 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
-//        ------   status bar location   ------
+//        ------   status bar   ------
         gridBagLayout.addLayoutComponent(statusBar, new GridBagConstraints(0, 2, 1,
-                1, 1.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 0, 0, 0), 0, 10));
+                1, 1.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 0, 0, 0), 0, 0));
 
         setVisible(true);   //  end of init
     }
 
-    private void addOnToolbar(JToolBar toolBar, JButton button) {
+    private JMenu addMenu(String name, int mnemonic) {
+        JMenu menu = new JMenu(name);
+        menu.setMnemonic(mnemonic);
+
+        menuBar.add(menu);
+        return menu;
+    }
+
+    private JMenuItem addMenuItem(JMenu menu,
+                                  String name, Icon icon, int mnemonic,
+                                  String statusBarText,
+                                  ActionListener actionListener) {
+        JMenuItem menuItem = new JMenuItem(name, icon);
+        menuItem.setMnemonic(mnemonic);
+
+        statusBar.addComponent(menuItem, statusBarText);
+        menuItem.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                statusBar.setActiveComponent(menuItem);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                statusBar.setActiveComponent(null);
+            }
+        });
+
+        menuItem.addActionListener(actionListener);
+
+        menu.add(menuItem);
+        return menuItem;
+    }
+
+    private JButton addToolbarButton(JMenuItem menuItem) {
+        JButton button = new JButton(menuItem.getIcon());
         button.setPreferredSize(new Dimension(16, 16));
         button.setMargin(new Insets(1, 1, 1, 1));
+
+        button.setToolTipText(menuItem.getText());
+        button.addMouseListener(menuItem.getMouseListeners()[1]);
+
+        button.addActionListener(menuItem.getActionListeners()[0]);
+
         toolBar.add(button);
+        return button;
     }
 
     private void newAction() {
@@ -151,7 +164,7 @@ public class MainFrame extends JFrame {
     }
 
     private void aboutAction() {
-        JOptionPane.showMessageDialog(this, "FIT NSU     g14203     Popov Vladimir", "About",
+        JOptionPane.showMessageDialog(this, "FIT NSU\ng14203\nPopov Vladimir", "About",
                                       JOptionPane.PLAIN_MESSAGE);
     }
 }
