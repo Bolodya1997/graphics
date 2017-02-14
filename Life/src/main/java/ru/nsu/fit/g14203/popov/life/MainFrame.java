@@ -1,6 +1,6 @@
-package ru.nsu.fit.g14203.popov.life.view;
+package ru.nsu.fit.g14203.popov.life;
 
-import ru.nsu.fit.g14203.popov.life.view.util.StatusBar;
+import ru.nsu.fit.g14203.popov.life.util.StatusBar;
 
 import javax.swing.*;
 import java.awt.*;
@@ -60,10 +60,17 @@ public class MainFrame extends JFrame {
         JMenuItem aboutMenuItem = addMenuItem(helpMenu, "About", aboutIcon, KeyEvent.VK_A,
                 "Show information about Life", e -> aboutAction());
 
+//        ------   layout   ------
+        GridBagLayout gridBagLayout = new GridBagLayout();
+        setLayout(gridBagLayout);
+
 //        ------   toolbar   ------
         toolBar.setFloatable(false);
         toolBar.setRollover(true);
         add(toolBar);
+        gridBagLayout.addLayoutComponent(toolBar, new GridBagConstraints(0, 0, 1,
+                1, 1.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
+                new Insets(0, 0, 0, 0), 0, 16));
 //        ------   New   ------
         addToolbarButton(newMenuItem);
 //        ------   Open   ------
@@ -75,23 +82,16 @@ public class MainFrame extends JFrame {
 //        ------   About   ------
         addToolbarButton(aboutMenuItem);
 
-//        ------   status bar   ------
-        add(statusBar);
-
-//        ------   layout   ------
-        GridBagLayout gridBagLayout = new GridBagLayout();
-        setLayout(gridBagLayout);
-//        ------   toolbar   ------
-        gridBagLayout.addLayoutComponent(toolBar, new GridBagConstraints(0, 0, 1,
-                1, 1.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 0, 0, 0), 0, 16));
 //        ------   game panel   ------
-        add(gamePanel);
         gamePanel.setBackground(Color.PINK);
-        gridBagLayout.addLayoutComponent(gamePanel, new GridBagConstraints(0, 1, 1,
+        JScrollPane gameScrollPane = new JScrollPane(gamePanel);
+        add(gameScrollPane);
+        gridBagLayout.addLayoutComponent(gameScrollPane, new GridBagConstraints(0, 1, 1,
                 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 0), 0, 0));
+
 //        ------   status bar   ------
+        add(statusBar);
         gridBagLayout.addLayoutComponent(statusBar, new GridBagConstraints(0, 2, 1,
                 1, 1.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0));

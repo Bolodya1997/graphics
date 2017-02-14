@@ -1,4 +1,4 @@
-package ru.nsu.fit.g14203.popov.life.view.util;
+package ru.nsu.fit.g14203.popov.life.util;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -95,6 +95,9 @@ public class MyPainter {
 
         while (!stack.isEmpty()) {
             Span cur = stack.pop();
+            if (cur.y == 0 || cur.y == canvas.getHeight() - 1)
+                continue;
+
             for (int __x = cur.x1; __x < cur.x2; __x++) {
                 if (canvas.getRGB(__x, cur.y + 1) == oldColor)
                     stack.push(fillSpan(canvas, __x, cur.y + 1, oldColor, color.getRGB()));
@@ -109,11 +112,11 @@ public class MyPainter {
                                  int oldColor, int newColor) {
         int x1, x2;
 
-        for (x1 = x; x1 >= 0 && canvas.getRGB(x1, y) == oldColor; x1--);
+        for (x1 = x; x1 > 0 && canvas.getRGB(x1, y) == oldColor; x1--);
         if (canvas.getRGB(x1, y) != oldColor)
             ++x1;
 
-        for (x2 = x; x2 < canvas.getWidth() && canvas.getRGB(x2, y) == oldColor; x2++);
+        for (x2 = x; x2 < canvas.getWidth() - 1 && canvas.getRGB(x2, y) == oldColor; x2++);
         if (canvas.getRGB(x2, y) != oldColor)
             --x2;
 

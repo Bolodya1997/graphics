@@ -1,4 +1,4 @@
-package ru.nsu.fit.g14203.popov.life.view.util;
+package ru.nsu.fit.g14203.popov.life.util;
 
 import javax.swing.*;
 import java.awt.*;

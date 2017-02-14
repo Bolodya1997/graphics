@@ -1,6 +1,6 @@
 package ru.nsu.fit.g14203.popov;
 
-import ru.nsu.fit.g14203.popov.life.view.MainFrame;
+import ru.nsu.fit.g14203.popov.life.MainFrame;
 
 public class Main {
 
