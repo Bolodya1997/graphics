@@ -52,6 +52,9 @@ public class MainFrame extends JFrame {
                 "Quit game", e -> exitAction());
 //              ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
+//                      ------   Clear   ------
+        addMenuItem(editMenu, "Reset", null, KeyEvent.VK_R,
+                "Reset field", e -> resetAction());
 //              ------   View   ------
         JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
 //              ------   Help   ------
@@ -161,6 +164,10 @@ public class MainFrame extends JFrame {
 
     private void exitAction() {
         processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+    }
+
+    private void resetAction() {
+        gamePanel.getGrid().clear();
     }
 
     private void aboutAction() {

@@ -36,6 +36,10 @@ class GamePanel extends JPanel {
         });
     }
 
+    Grid getGrid() {
+        return grid;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         int width = GridInfo.getWidth(grid.getWidth(), size);
@@ -70,12 +74,21 @@ class GamePanel extends JPanel {
     }
 
     private void paintCell(MouseEvent e) {
+        if (e.getX() < 0 || e.getX() >= canvas.getWidth())
+            return;
+        if (e.getY() < 0 || e.getY() >= canvas.getHeight())
+            return;
+
         int RGB = canvas.getRGB(e.getX(), e.getY()) & 0xFFFFFF;
         if (RGB == 0x000000 || RGB == 0xFFFFFF)
             return;
 
         Point point = GridInfo.getGridPosition(e.getX(), e.getY(), size);
         if (point.x == -1)
+            return;
+
+        double oldValue = grid.getValue(point.x, point.y);
+        if (oldValue == 1.0)
             return;
 
         grid.setValue(point.x, point.y, 1.0);

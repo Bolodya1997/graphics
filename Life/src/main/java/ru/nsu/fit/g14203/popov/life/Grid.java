@@ -37,4 +37,11 @@ class Grid {
     void setValue(int gridX, int gridY, double value) {
         grid[gridX][gridY] = value;
     }
+
+    void clear() {
+        for (double[] row : grid) {
+            for (int i = 0; i < row.length; i++)
+                row[i] = 0;
+        }
+    }
 }
