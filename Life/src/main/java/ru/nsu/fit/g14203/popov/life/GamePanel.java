@@ -14,6 +14,7 @@ class GamePanel extends JPanel {
     private Grid grid = new Grid(10, 10);
 
     private int size = 45;
+    private int width = 3;
 
     private BufferedImage canvas;
 
@@ -60,8 +61,9 @@ class GamePanel extends JPanel {
             for (int gridY = 0; gridY < grid.getHeight(); gridY++) {
                 Point[] points = GridInfo.getPoints(gridX, gridY, size);
                 for (int p = 0; p < 6; p++) {
-                    MyPainter.drawLine(canvas, points[p].x, points[p].y,
-                            points[(p + 1) % 6].x, points[(p + 1) % 6].y, Color.BLACK);
+                    for (int offset = 0; offset < width; offset++)
+                        MyPainter.drawLine(canvas, points[p].x + offset, points[p].y,
+                                points[(p + 1) % 6].x + offset, points[(p + 1) % 6].y, Color.BLACK);
                 }
 
                 Point point = GridInfo.getPoint(gridX, gridY, size);

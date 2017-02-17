@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
         ImageIcon saveIcon = new ImageIcon(MainFrame.class.getResource("Save.png"));
         ImageIcon exitIcon = new ImageIcon(MainFrame.class.getResource("Exit.png"));
         ImageIcon aboutIcon = new ImageIcon(MainFrame.class.getResource("About.png"));
+        ImageIcon resetIcon = new ImageIcon(MainFrame.class.getResource("Reset.png"));
 
 //        ------   menus   ------
         setJMenuBar(menuBar);
@@ -52,8 +53,8 @@ public class MainFrame extends JFrame {
                 "Quit game", e -> exitAction());
 //              ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
-//                      ------   Clear   ------
-        addMenuItem(editMenu, "Reset", null, KeyEvent.VK_R,
+//                      ------   Reset   ------
+        JMenuItem resetMenuItem = addMenuItem(editMenu, "Reset", resetIcon, KeyEvent.VK_R,
                 "Reset field", e -> resetAction());
 //              ------   View   ------
         JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
@@ -80,6 +81,10 @@ public class MainFrame extends JFrame {
         addToolbarButton(openMenuItem);
 //        ------   Save   ------
         addToolbarButton(saveMenuItem);
+//        ------      -------
+        toolBar.addSeparator();
+//        ------   Reset   ------
+        addToolbarButton(resetMenuItem);
 //        ------      -------
         toolBar.addSeparator();
 //        ------   About   ------
@@ -168,6 +173,7 @@ public class MainFrame extends JFrame {
 
     private void resetAction() {
         gamePanel.getGrid().clear();
+        gamePanel.repaint();
     }
 
     private void aboutAction() {
