@@ -11,19 +11,16 @@ import java.awt.image.BufferedImage;
 
 class GamePanel extends JPanel {
 
-    private Grid grid;
-    private int size;
-    private int width;
+    private Grid grid = new Grid(new Settings());
 
     private BufferedImage canvas;
-
-    private boolean changed = true;
+    private Dimension preferredSize;
 
     private Color deadColor = new Color(0xFF8579);
     private Color aliveColor = new Color(0x63FF82);
 
     GamePanel() {
-        createGrid(100, 100, 1, 10);
+        recountGrid(grid.getSettings());
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -40,52 +37,61 @@ class GamePanel extends JPanel {
 
         new Timer(1000, e -> {
             grid.step();
-            changed = true;
+            fillCells();
             repaint();
         }).start();
     }
 
-    void createGrid(int gridWidth, int gridHeight, int width, int size) {
-        grid = new Grid(gridWidth, gridHeight);
-        this.width = width;
-        this.size = size;
+    Grid getGrid() {
+        return grid;
+    }
 
-        int pixelWidth = GridInfo.getWidth(grid.getWidth(), size);
-        int pixelHeight = GridInfo.getHeight(grid.getHeight(), size);
+    void recountGrid(Settings settings) {
+        grid.setSettings(settings);
+
+        int gridWidth = settings.gridWidth.getValue();
+        int gridHeight = settings.gridHeight.getValue();
+        int size = settings.size.getValue();
+        int width = settings.width.getValue();
+
+        int pixelWidth = GridInfo.getWidth(gridWidth, size, width);
+        int pixelHeight = GridInfo.getHeight(gridHeight, size, width);
+        preferredSize = new Dimension(pixelWidth, pixelHeight);
+
         canvas = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_RGB);
         canvas.getGraphics().fillRect(0, 0, pixelWidth, pixelHeight);
 
         drawGrid();
+        fillCells();
+        repaint();
     }
 
     void clearGrid() {
         grid.clear();
-        changed = true;
+
+        fillCells();
+        repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        int width = GridInfo.getWidth(grid.getWidth(), size);
-        int height = GridInfo.getHeight(grid.getHeight(), size);
-
-        setPreferredSize(new Dimension(width, height));
-
-        if (changed) {
-            fillCells();
-            changed = false;
-        }
-
+        setPreferredSize(preferredSize);
         g.drawImage(canvas, 0, 0, null);
     }
 
     private void drawGrid() {
+        int gridWidth = grid.getSettings().gridWidth.getValue();
+        int gridHeight = grid.getSettings().gridHeight.getValue();
+        int size = grid.getSettings().size.getValue();
+        int width = grid.getSettings().width.getValue();
+
         Graphics2D g = canvas.createGraphics();
         g.setStroke(new BasicStroke(width));
         g.setColor(Color.BLACK);
 
-        for (int gridX = 0; gridX < grid.getWidth(); gridX++) {
-            for (int gridY = 0; gridY < grid.getHeight(); gridY++) {
-                Point[] points = GridInfo.getPoints(gridX, gridY, size);
+        for (int gridX = 0; gridX < gridWidth; gridX++) {
+            for (int gridY = 0; gridY < gridHeight; gridY++) {
+                Point[] points = GridInfo.getPoints(gridX, gridY, size, width);
                 for (int p = 0; p < 6; p++) {
                     if (width == 1)
                         MyPainter.drawLine(canvas, points[p].x, points[p].y,
@@ -98,19 +104,21 @@ class GamePanel extends JPanel {
     }
 
     private void fillCells() {
+        int gridWidth = grid.getSettings().gridWidth.getValue();
+        int gridHeight = grid.getSettings().gridHeight.getValue();
+        int size = grid.getSettings().size.getValue();
+        int width = grid.getSettings().width.getValue();
+
         Graphics2D g = canvas.createGraphics();
         g.setColor(Color.BLACK);
 
-        for (int gridX = 0; gridX < grid.getWidth(); gridX++) {
-            for (int gridY = 0; gridY < grid.getHeight(); gridY++) {
-                Point point = GridInfo.getPoint(gridX, gridY, size);
+        for (int gridX = 0; gridX < gridWidth; gridX++) {
+            for (int gridY = 0; gridY < gridHeight; gridY++) {
+                Point point = GridInfo.getCenter(gridX, gridY, size, width);
                 if (grid.getAlive(gridX, gridY))
                     MyPainter.fillArea(canvas, point.x, point.y, aliveColor);
                 else
                     MyPainter.fillArea(canvas, point.x, point.y, deadColor);
-
-//                char[] tmp = String.format("%.1f", grid.getImpact(gridX, gridY)).toCharArray();
-//                g.drawChars(tmp, 0, tmp.length, point.x - 8, point.y + 8);
             }
         }
     }
@@ -125,14 +133,18 @@ class GamePanel extends JPanel {
         if (RGB == 0x000000)
             return;
 
-        Point pos = GridInfo.getGridPosition(e.getX(), e.getY(), size);
-        if (pos.x < 0 || grid.getWidth() <= pos.x || pos.y < 0 || grid.getHeight() <= pos.y)
+        int gridWidth = grid.getSettings().gridWidth.getValue();
+        int gridHeight = grid.getSettings().gridHeight.getValue();
+        int size = grid.getSettings().size.getValue();
+        int width = grid.getSettings().width.getValue();
+
+        Point pos = GridInfo.getGridPosition(e.getX(), e.getY(), size, width);
+        if (pos.x < 0 || gridWidth <= pos.x || pos.y < 0 || gridHeight <= pos.y)
             return;
 
         grid.setAlive(pos.x, pos.y, true);
 
-        changed = true;
-//        MyPainter.fillArea(canvas, e.getX(), e.getY(), aliveColor);
+        fillCells();
         repaint();
     }
 }

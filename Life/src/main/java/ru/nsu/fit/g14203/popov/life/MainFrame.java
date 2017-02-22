@@ -1,5 +1,6 @@
 package ru.nsu.fit.g14203.popov.life;
 
+import ru.nsu.fit.g14203.popov.life.util.MutableBoolean;
 import ru.nsu.fit.g14203.popov.life.util.StatusBar;
 
 import javax.swing.*;
@@ -163,11 +164,6 @@ public class MainFrame extends JFrame {
         return button;
     }
 
-    void setGridSettings(int gridWidth, int gridHeight, int size, int width) {
-        gamePanel.createGrid(gridWidth, gridHeight, size, width);
-        gameScrollPane.repaint();
-    }
-
     private void newAction() {
 
     }
@@ -190,7 +186,16 @@ public class MainFrame extends JFrame {
     }
 
     private void settingsAction() {
-        new SettingsDialog(this);
+        Grid grid = gamePanel.getGrid();
+        Settings settings = new Settings(grid.getSettings());
+
+        MutableBoolean changed = new MutableBoolean(false);
+        new SettingsDialog(this, settings, changed);
+
+        if (changed.isTrue()) {
+            gamePanel.recountGrid(settings);
+            gamePanel.repaint();
+        }
     }
 
     private void aboutAction() {

@@ -10,46 +10,55 @@ class Grid {
 
         void recountAlive() {
             if (alive)
-                alive = Grid.this.lifeBegin <= impact && impact <= Grid.this.lifeEnd;
+                alive = Grid.this.settings.lifeBegin.getValue() <= impact
+                        && impact <= Grid.this.settings.lifeEnd.getValue();
             else
-                alive = Grid.this.birthBegin <= impact && impact <= Grid.this.birthEnd;
+                alive = Grid.this.settings.birthBegin.getValue() <= impact
+                        && impact <= Grid.this.settings.birthEnd.getValue();
         }
     }
 
-    private double lifeBegin = 6.0;
-    private double lifeEnd = 6.0;
-
-    private double birthBegin = 1.0;
-    private double birthEnd = 6.0;
-
-    private double firstImpact = 1.0;
-    private double secondImpact = 0.0;
-
-    private int width;
-    private int height;
+    private Settings settings;
 
     private static final int WIDTH_BORDER = 2;
     private static final int HEIGHT_BORDER = 2;
 
     private Cell[][] grid;
 
-    Grid(int width, int height) {
-        this.width = width;
-        this.height = height;
+    Grid(Settings settings) {
+        this.settings = settings;
+        recountGridSize();
+    }
 
-        grid = new Cell[width + WIDTH_BORDER * 2][height + HEIGHT_BORDER * 2];
-        for (Cell[] row : grid) {
-            for (int i = 0; i < row.length; i++)
-                row[i] = new Cell();
+    Settings getSettings() {
+        return settings;
+    }
+
+    void setSettings(Settings settings) {
+        this.settings = settings;
+        recountGridSize();
+    }
+
+    private synchronized void recountGridSize() {
+        Cell[][] oldGrid = grid;
+        grid = new Cell[settings.gridWidth.getValue() + WIDTH_BORDER * 2]
+                       [settings.gridHeight.getValue() + HEIGHT_BORDER * 2];
+        for (int x = 0; x < grid.length; x++) {
+            for (int y = 0; y < grid[0].length; y++)
+                grid[x][y] = (oldGrid == null) ? new Cell() :
+                             (oldGrid.length <= x || oldGrid[0].length <= y) ? new Cell() :
+                             (x >= grid.length - WIDTH_BORDER || y >= grid[0].length - HEIGHT_BORDER) ? new Cell() :
+                             oldGrid[x][y];
         }
     }
 
-    int getWidth() {
-        return width;
-    }
-
-    int getHeight() {
-        return height;
+    void clear() {
+        for (int x = 1; x < settings.gridWidth.getValue() + WIDTH_BORDER; x++) {
+            for (int y = 1; y < settings.gridHeight.getValue() + HEIGHT_BORDER; y++) {
+                grid[x][y].impact = 0.0;
+                grid[x][y].alive = false;
+            }
+        }
     }
 
     double getImpact(int gridX, int gridY) {
@@ -65,26 +74,17 @@ class Grid {
         return grid[gridX + WIDTH_BORDER][gridY + HEIGHT_BORDER].alive;
     }
 
-    void step() {
-        for (int x = 1; x < width + WIDTH_BORDER; x++) {
-            for (int y = 1; y < height + HEIGHT_BORDER; y++)
+    synchronized void step() {
+        for (int x = 1; x < settings.gridWidth.getValue() + WIDTH_BORDER; x++) {
+            for (int y = 1; y < settings.gridHeight.getValue() + HEIGHT_BORDER; y++)
                 grid[x][y].recountAlive();
         }
         recountImpact();
     }
 
-    void clear() {
-        for (int x = 1; x < width + WIDTH_BORDER; x++) {
-            for (int y = 1; y < height + HEIGHT_BORDER; y++) {
-                grid[x][y].impact = 0.0;
-                grid[x][y].alive = false;
-            }
-        }
-    }
-
     private void recountImpact() {
-        for (int x = WIDTH_BORDER; x < width + WIDTH_BORDER; x++) {
-            for (int y = HEIGHT_BORDER; y < height + HEIGHT_BORDER; y++)
+        for (int x = WIDTH_BORDER; x < settings.gridWidth.getValue() + WIDTH_BORDER; x++) {
+            for (int y = HEIGHT_BORDER; y < settings.gridHeight.getValue() + HEIGHT_BORDER; y++)
                 recountImpact(x, y);
         }
     }
@@ -98,13 +98,13 @@ class Grid {
                                  new Point(-1, 0), new Point(1, 0),
                                  new Point(even ? -1 : 0, 1), new Point(even ? 0 : 1, 1) };
         for (Point offset : firstOffsets)
-            grid[x][y].impact += grid[x + offset.x][y + offset.y].alive ? firstImpact : 0;
+            grid[x][y].impact += grid[x + offset.x][y + offset.y].alive ? settings.firstImpact.getValue() : 0;
 
         Point[] secondOffsets = { new Point(0, -2),
                                   new Point(even ? -2 : -1, -1), new Point(even ? 1 : 2, -1),
                                   new Point(even ? -2 : -1, 1), new Point(even ? 1 : 2, 1),
                                   new Point(0, 2) };
         for (Point offset : secondOffsets)
-            grid[x][y].impact += grid[x + offset.x][y + offset.y].alive ? secondImpact : 0;
+            grid[x][y].impact += grid[x + offset.x][y + offset.y].alive ? settings.secondImpact.getValue() : 0;
     }
 }
