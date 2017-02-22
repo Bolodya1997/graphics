@@ -36,7 +36,11 @@ public class MyPainter {
                                   Color color) {
         int error = 0;
         for (int i = 0; i < deltaX; i++, x += stepX) {
-            canvas.setRGB(x, y, color.getRGB());
+            try {
+                canvas.setRGB(x, y, color.getRGB());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             error += deltaY;
             if (error * 2 > deltaX) {
@@ -89,13 +93,15 @@ public class MyPainter {
                                 int x, int y,
                                 Color color) {
         int oldColor = canvas.getRGB(x, y);
+        if (oldColor == color.getRGB())
+            return;
 
         LinkedList<Span> stack = new LinkedList<>();
         stack.push(fillSpan(canvas, x, y, oldColor, color.getRGB()));
 
         while (!stack.isEmpty()) {
             Span cur = stack.pop();
-            if (cur.y == 0 || cur.y == canvas.getHeight() - 1)
+            if (cur.y <= 0 || cur.y >= canvas.getHeight() - 1)
                 continue;
 
             for (int __x = cur.x1; __x < cur.x2; __x++) {

@@ -13,6 +13,7 @@ public class MainFrame extends JFrame {
     private StatusBar statusBar = new StatusBar();
 
     private GamePanel gamePanel = new GamePanel();
+    private JScrollPane gameScrollPane = new JScrollPane(gamePanel);
 
     public MainFrame() {
         super("Life");
@@ -23,7 +24,7 @@ public class MainFrame extends JFrame {
 
 //        ------   location   ------
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation(screenSize.width / 2 - 400, screenSize.height / 2 - 300);
+        setLocation((screenSize.width - getWidth()) / 2, (screenSize.height - getHeight()) / 2);
 
 //        ------   icons   ------
         ImageIcon newIcon = new ImageIcon(MainFrame.class.getResource("New.png"));
@@ -32,6 +33,7 @@ public class MainFrame extends JFrame {
         ImageIcon exitIcon = new ImageIcon(MainFrame.class.getResource("Exit.png"));
         ImageIcon aboutIcon = new ImageIcon(MainFrame.class.getResource("About.png"));
         ImageIcon resetIcon = new ImageIcon(MainFrame.class.getResource("Reset.png"));
+        ImageIcon gridSettingsIcon = new ImageIcon(MainFrame.class.getResource("Grid_settings.png"));
 
 //        ------   menus   ------
         setJMenuBar(menuBar);
@@ -39,30 +41,33 @@ public class MainFrame extends JFrame {
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
 //                      ------   New   ------
         JMenuItem newMenuItem = addMenuItem(fileMenu, "New", newIcon, KeyEvent.VK_N,
-                "Create new empty field", e -> newAction());
+                "Create new empty field", this::newAction);
 //                      ------   Open   ------
         JMenuItem openMenuItem = addMenuItem(fileMenu, "Open", openIcon, KeyEvent.VK_O,
-                "Open a field in game", e -> openAction());
+                "Open a field in game", this::openAction);
 //                      ------   Save   ------
         JMenuItem saveMenuItem = addMenuItem(fileMenu, "Save", saveIcon, KeyEvent.VK_S,
-                "Save field", e -> saveAction());
+                "Save field", this::saveAction);
 //                      ------      ------
         fileMenu.addSeparator();
 //                      ------   Exit   ------
         addMenuItem(fileMenu, "Exit", exitIcon, KeyEvent.VK_X,
-                "Quit game", e -> exitAction());
+                "Quit game", this::exitAction);
 //              ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
 //                      ------   Reset   ------
         JMenuItem resetMenuItem = addMenuItem(editMenu, "Reset", resetIcon, KeyEvent.VK_R,
-                "Reset field", e -> resetAction());
+                "Reset field", this::resetAction);
 //              ------   View   ------
         JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
+//                      ------   Grid settings   ------
+        addMenuItem(viewMenu, "Grid settings", gridSettingsIcon, KeyEvent.VK_T,
+                "Edit grid settings", this::settingsAction);
 //              ------   Help   ------
         JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
 //                      ------   About   ------
         JMenuItem aboutMenuItem = addMenuItem(helpMenu, "About", aboutIcon, KeyEvent.VK_A,
-                "Show information about Life", e -> aboutAction());
+                "Show information about Life", this::aboutAction);
 
 //        ------   layout   ------
         GridBagLayout gridBagLayout = new GridBagLayout();
@@ -91,8 +96,7 @@ public class MainFrame extends JFrame {
         addToolbarButton(aboutMenuItem);
 
 //        ------   game panel   ------
-        gamePanel.setBackground(Color.PINK);
-        JScrollPane gameScrollPane = new JScrollPane(gamePanel);
+        gameScrollPane.getVerticalScrollBar().setUnitIncrement(10);
         add(gameScrollPane);
         gridBagLayout.addLayoutComponent(gameScrollPane, new GridBagConstraints(0, 1, 1,
                 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
@@ -104,7 +108,8 @@ public class MainFrame extends JFrame {
                 1, 1.0, 0.0, GridBagConstraints.SOUTH, GridBagConstraints.HORIZONTAL,
                 new Insets(0, 0, 0, 0), 0, 0));
 
-        setVisible(true);   //  end of init
+//        ------   end of init   ------
+        setVisible(true);
     }
 
     private JMenu addMenu(String name, int mnemonic) {
@@ -118,7 +123,7 @@ public class MainFrame extends JFrame {
     private JMenuItem addMenuItem(JMenu menu,
                                   String name, Icon icon, int mnemonic,
                                   String statusBarText,
-                                  ActionListener actionListener) {
+                                  Runnable action) {
         JMenuItem menuItem = new JMenuItem(name, icon);
         menuItem.setMnemonic(mnemonic);
 
@@ -135,7 +140,10 @@ public class MainFrame extends JFrame {
             }
         });
 
-        menuItem.addActionListener(actionListener);
+        menuItem.addActionListener(e -> {
+            statusBar.setActiveComponent(null);
+            action.run();
+        });
 
         menu.add(menuItem);
         return menuItem;
@@ -155,6 +163,11 @@ public class MainFrame extends JFrame {
         return button;
     }
 
+    void setGridSettings(int gridWidth, int gridHeight, int size, int width) {
+        gamePanel.createGrid(gridWidth, gridHeight, size, width);
+        gameScrollPane.repaint();
+    }
+
     private void newAction() {
 
     }
@@ -172,8 +185,12 @@ public class MainFrame extends JFrame {
     }
 
     private void resetAction() {
-        gamePanel.getGrid().clear();
+        gamePanel.clearGrid();
         gamePanel.repaint();
+    }
+
+    private void settingsAction() {
+        new SettingsDialog(this);
     }
 
     private void aboutAction() {

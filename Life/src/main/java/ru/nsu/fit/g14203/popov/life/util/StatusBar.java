@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class StatusBar extends JPanel {
 
-    private JLabel hintLabel = new JLabel();
+    private JLabel hintLabel = new JLabel("Ready");
 
     private JLabel capsLabel = new JLabel("CAP");
     private JLabel numLabel = new JLabel("NUM");
@@ -47,7 +47,7 @@ public class StatusBar extends JPanel {
 
     public void setActiveComponent(JComponent component) {
         if (component == null)
-            hintLabel.setText(null);
+            hintLabel.setText("Ready");
         else
             hintLabel.setText(hints.get(component));
     }

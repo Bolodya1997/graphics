@@ -1,7 +1,6 @@
 package ru.nsu.fit.g14203.popov.life;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 class GridInfo {
 
@@ -30,7 +29,7 @@ class GridInfo {
      * @return              grid height in pixels
      */
     static int getHeight(int gridHeight, int size) {
-        return (size * 3 / 2) * (gridHeight + 1);
+        return (size * 3 / 2 + 1) * (gridHeight + 1);
     }
 
     /**
@@ -49,9 +48,9 @@ class GridInfo {
             points[1] = new Point(width(size) / 2, height(size));
         }
         points[0].x += width(size) * gridX;
-        points[0].y += (height(size) + size) * (gridY / 2);
+        points[0].y += (height(size) + size) * (gridY >= 0 ? gridY / 2 : (gridY - 1) / 2);
         points[1].x += width(size) * gridX;
-        points[1].y += (height(size) + size) * (gridY / 2);
+        points[1].y += (height(size) + size) * (gridY >= 0 ? gridY / 2 : (gridY - 1) / 2);
 
         points[2] = new Point(points[1].x, points[1].y + size);
         points[3] = new Point(points[0].x, points[0].y + height(size));
@@ -81,10 +80,6 @@ class GridInfo {
     static Point getGridPosition(int x, int y, int size) {
         int subGridX = x / width(size);
         int subGridY = y / size;
-
-        if (subGridY == 0) {
-            return new Point(subGridX, 0);
-        }
 
         switch (subGridY % 3) {
             case 0:
@@ -119,9 +114,6 @@ class GridInfo {
     }
 
     private static Point line2(int subGridX, int subGridY, int x, int y, int size) {
-        if (subGridX == 0)
-            return new Point(subGridX, line2Y(subGridY));
-
         Point[] neighbours = new Point[2];
         neighbours[0] = new Point(subGridX - 1, line2Y(subGridY));
         neighbours[1] = new Point(subGridX, line2Y(subGridY));
