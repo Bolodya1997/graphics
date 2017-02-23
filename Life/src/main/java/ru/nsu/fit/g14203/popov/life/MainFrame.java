@@ -46,6 +46,8 @@ public class MainFrame extends JFrame {
         ImageIcon stopIcon = new ImageIcon(MainFrame.class.getResource("Stop.png"));
         ImageIcon XORModeIcon = new ImageIcon(MainFrame.class.getResource("XOR_mode.png"));
         ImageIcon replaceModeIcon = new ImageIcon(MainFrame.class.getResource("Replace_mode.png"));
+        ImageIcon impactIcon = new ImageIcon(MainFrame.class.getResource("Impact.png"));
+        ImageIcon colorsIcon = new ImageIcon(MainFrame.class.getResource("Colors.png"));
 
 //        ------   menus   ------
         setJMenuBar(menuBar);
@@ -77,23 +79,37 @@ public class MainFrame extends JFrame {
                 "XOR", XORModeIcon, KeyEvent.VK_X,
                 "Replace", replaceModeIcon, KeyEvent.VK_R,
                 "Inverse cell state on click", "Set cell alive",
-                this::XORAction, this::replaceAction);
-//              ------   View   ------
-        JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
+                () -> gamePanel.getReplace().setState(false), () -> gamePanel.getReplace().setState(true));
+//              ------   Action   ------
+        JMenu actionMenu = addMenu("Action", KeyEvent.VK_A);
 //                      ------   Reset   ------
-        JMenuItem resetMenuItem = addMenuItem(viewMenu, "Reset", resetIcon, KeyEvent.VK_R,
+        JMenuItem resetMenuItem = addMenuItem(actionMenu, "Reset", resetIcon, KeyEvent.VK_R,
                 "Reset field", this::resetAction);
         onPlay.add(resetMenuItem);
 //                      ------   Start | Stop   ------
-        JRadioMenuItem playRadioMenuItem = addRadioMenuItem(viewMenu,
+        JRadioMenuItem playRadioMenuItem = addRadioMenuItem(actionMenu,
                 "Start", startIcon, KeyEvent.VK_S,
                 "Stop", stopIcon, KeyEvent.VK_S,
                 "Start game", "Stop game",
                 this::startAction, this::stopAction);
 //                      ------   Step   ------
-        JMenuItem stepMenuItem = addMenuItem(viewMenu, "Step", stepIcon, KeyEvent.VK_T,
+        JMenuItem stepMenuItem = addMenuItem(actionMenu, "Step", stepIcon, KeyEvent.VK_T,
                 "Make single step", this::stepAction);
         onPlay.add(stepMenuItem);
+//              ------   View   ------
+        JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
+//                      ------   Impact   ------
+        JRadioMenuItem impactRadioMenuItem = addRadioMenuItem(viewMenu,
+                "Impact", impactIcon, KeyEvent.VK_I,
+                "Impact", impactIcon, KeyEvent.VK_I,
+                "Show impact values", "Hide impact values",
+                () -> gamePanel.getImpact().setState(true), () -> gamePanel.getImpact().setState(false));
+//                      ------   Colors   ------
+        JRadioMenuItem colorsRadioMenuItem = addRadioMenuItem(viewMenu,
+                "Colors", colorsIcon, KeyEvent.VK_I,
+                "Colors", colorsIcon, KeyEvent.VK_I,
+                "Show impact base colors", "Hide impact base colors",
+                this::enableColors, this::disableColor);
 //              ------   Help   ------
         JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
 //                      ------   About   ------
@@ -117,6 +133,12 @@ public class MainFrame extends JFrame {
         addToolbarButton(openMenuItem);
 //        ------   Save   ------
         addToolbarButton(saveMenuItem);
+//        ------      -------
+        toolBar.addSeparator();
+//        ------   Impact   -------
+        addToolBarToggleButton(impactRadioMenuItem);
+//        ------   Colors   ------
+        addToolBarToggleButton(colorsRadioMenuItem);
 //        ------      -------
         toolBar.addSeparator();
 //        ------   XOR | Replace   ------
@@ -295,7 +317,6 @@ public class MainFrame extends JFrame {
 
         if (changed.isTrue()) {
             gamePanel.recountGrid(settings);
-            gameScrollPane.repaint();
         }
 
         if (replace.isTrue() ^ gamePanel.getReplace().isTrue())
@@ -331,11 +352,15 @@ public class MainFrame extends JFrame {
                                       JOptionPane.PLAIN_MESSAGE);
     }
 
-    private void XORAction() {
-        gamePanel.getReplace().setState(false);
+    private void enableColors() {
+        gamePanel.getColors().setState(true);
+        gamePanel.fillCells();
+        gamePanel.repaint();
     }
 
-    private void replaceAction() {
-        gamePanel.getReplace().setState(true);
+    private void disableColor() {
+        gamePanel.getColors().setState(false);
+        gamePanel.fillCells();
+        gamePanel.repaint();
     }
 }

@@ -20,8 +20,8 @@ class GamePanel extends JPanel {
     private MutableBoolean play = new MutableBoolean(false);
     private MutableBoolean replace = new MutableBoolean(true);
 
-    private MutableBoolean impact = new MutableBoolean(true);
-    private MutableBoolean colors = new MutableBoolean(true);
+    private MutableBoolean impact = new MutableBoolean(false);
+    private MutableBoolean colors = new MutableBoolean(false);
 
     private Point lastDragged = null;
 
@@ -123,6 +123,8 @@ class GamePanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         setPreferredSize(preferredSize);
+        setSize(preferredSize);
+
         g.clearRect(0, 0, getWidth(), getHeight());
 
         g.drawImage(canvas, 0, 0, null);
@@ -155,7 +157,7 @@ class GamePanel extends JPanel {
         }
     }
 
-    private void fillCells() {
+    void fillCells() {
         int gridWidth = grid.getSettings().gridWidth.getValue();
         int gridHeight = grid.getSettings().gridHeight.getValue();
         int size = grid.getSettings().size.getValue();
