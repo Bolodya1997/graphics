@@ -190,7 +190,7 @@ public class MainFrame extends JFrame {
         Settings settings = new Settings(grid.getSettings());
 
         MutableBoolean changed = new MutableBoolean(false);
-        new SettingsDialog(this, settings, changed);
+        new SettingsDialog(this, settings, changed, new MutableBoolean(true));
 
         if (changed.isTrue()) {
             gamePanel.recountGrid(settings);

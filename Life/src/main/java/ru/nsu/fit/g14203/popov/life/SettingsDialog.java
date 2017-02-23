@@ -63,6 +63,8 @@ class SettingsDialog extends JDialog {
         gridBagLayout.addLayoutComponent(modePanel, new GridBagConstraints(1, 0, 1,
                 1, 0.5, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 5, 0, 5), 0, 0));
+//              ------   Mode buttons   ------
+        addModeButtons("Replace", "Xor", replace);
 //        ------   Impact   ------
         impactPanel = titledBorderPanel("Impact");
         add(impactPanel);
@@ -316,27 +318,60 @@ class SettingsDialog extends JDialog {
         gridBagLayout.addLayoutComponent(valueTextField, constraints);
     }
 
-    private void addModeBlock(String name, boolean template, MutableBoolean value) {
+    private void addModeButtons(String nameTrue, String nameFalse, MutableBoolean value) {
         GridBagLayout gridBagLayout = (GridBagLayout) modePanel.getLayout();
         GridBagConstraints constraints = new GridBagConstraints(0, GridBagConstraints.RELATIVE, 1,
                 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(2, 2, 2, 2), 0, 0);
 
-//        ------   Name   ------
-        JLabel nameLabel = new JLabel(name);
+//        ------   Name true   ------
+        JLabel nameLabelTrue = new JLabel(nameTrue);
 
-        environmentPanel.add(nameLabel);
-        gridBagLayout.addLayoutComponent(nameLabel, constraints);
+        modePanel.add(nameLabelTrue);
+        gridBagLayout.addLayoutComponent(nameLabelTrue, constraints);
 
-//        ------   radio button   ------
-        JRadioButton radioButton = new JRadioButton();
-        radioButton.setSelected(template == value.isTrue());
+//        ------   radio button true   ------
+        JRadioButton radioButtonTrue = new JRadioButton();
+        radioButtonTrue.setSelected(value.isTrue());
 
-//        TODO: create link between buttons
-
-        environmentPanel.add(radioButton);
+        modePanel.add(radioButtonTrue);
         ++constraints.gridx;
-        gridBagLayout.addLayoutComponent(radioButton, constraints);
+        gridBagLayout.addLayoutComponent(radioButtonTrue, constraints);
+
+//        ------   Name false   ------
+        JLabel nameLabelFalse = new JLabel(nameFalse);
+
+        modePanel.add(nameLabelFalse);
+        constraints.gridx = 0;
+        constraints.gridy = 1;
+        gridBagLayout.addLayoutComponent(nameLabelFalse, constraints);
+
+//        ------   radio button false   ------
+        JRadioButton radioButtonFalse = new JRadioButton();
+        radioButtonFalse.setSelected(!value.isTrue());
+
+        modePanel.add(radioButtonFalse);
+        ++constraints.gridx;
+        gridBagLayout.addLayoutComponent(radioButtonFalse, constraints);
+
+//        ------   link   ------
+        radioButtonTrue.addActionListener(e -> {
+            if (radioButtonTrue.isSelected())
+                radioButtonFalse.setSelected(false);
+            else
+                radioButtonFalse.setSelected(true);
+
+            value.setState(radioButtonTrue.isSelected());
+        });
+
+        radioButtonFalse.addActionListener(e -> {
+            if (radioButtonFalse.isSelected())
+                radioButtonTrue.setSelected(false);
+            else
+                radioButtonTrue.setSelected(true);
+
+            value.setState(radioButtonTrue.isSelected());
+        });
     }
 
     private void OKButtonAction() {
