@@ -1,11 +1,13 @@
 package ru.nsu.fit.g14203.popov.life;
 
+import ru.nsu.fit.g14203.popov.life.util.JRadioMenuItem;
 import ru.nsu.fit.g14203.popov.life.util.MutableBoolean;
 import ru.nsu.fit.g14203.popov.life.util.StatusBar;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 public class MainFrame extends JFrame {
 
@@ -15,6 +17,10 @@ public class MainFrame extends JFrame {
 
     private GamePanel gamePanel = new GamePanel();
     private JScrollPane gameScrollPane = new JScrollPane(gamePanel);
+
+    private JRadioMenuItem XORRadioMenuItem;
+
+    private java.util.List<JComponent> onPlay = new LinkedList<>();
 
     public MainFrame() {
         super("Life");
@@ -35,6 +41,11 @@ public class MainFrame extends JFrame {
         ImageIcon aboutIcon = new ImageIcon(MainFrame.class.getResource("About.png"));
         ImageIcon resetIcon = new ImageIcon(MainFrame.class.getResource("Reset.png"));
         ImageIcon gridSettingsIcon = new ImageIcon(MainFrame.class.getResource("Grid_settings.png"));
+        ImageIcon stepIcon = new ImageIcon(MainFrame.class.getResource("Step.png"));
+        ImageIcon startIcon = new ImageIcon(MainFrame.class.getResource("Start.png"));
+        ImageIcon stopIcon = new ImageIcon(MainFrame.class.getResource("Stop.png"));
+        ImageIcon XORModeIcon = new ImageIcon(MainFrame.class.getResource("XOR_mode.png"));
+        ImageIcon replaceModeIcon = new ImageIcon(MainFrame.class.getResource("Replace_mode.png"));
 
 //        ------   menus   ------
         setJMenuBar(menuBar);
@@ -52,18 +63,37 @@ public class MainFrame extends JFrame {
 //                      ------      ------
         fileMenu.addSeparator();
 //                      ------   Exit   ------
-        addMenuItem(fileMenu, "Exit", exitIcon, KeyEvent.VK_X,
+        addMenuItem(fileMenu, "Exit", exitIcon, KeyEvent.VK_E,
                 "Quit game", this::exitAction);
 //              ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
-//                      ------   Reset   ------
-        JMenuItem resetMenuItem = addMenuItem(editMenu, "Reset", resetIcon, KeyEvent.VK_R,
-                "Reset field", this::resetAction);
+//                      ------   Grid settings   ------
+        addMenuItem(editMenu, "Grid settings", gridSettingsIcon, KeyEvent.VK_S,
+                "Edit grid settings", this::settingsAction);
+//                      ------   ------
+        editMenu.addSeparator();
+//                      ------   XOR | Replace   ------
+        XORRadioMenuItem = addRadioMenuItem(editMenu,
+                "XOR", XORModeIcon, KeyEvent.VK_X,
+                "Replace", replaceModeIcon, KeyEvent.VK_R,
+                "Inverse cell state on click", "Set cell alive",
+                this::XORAction, this::replaceAction);
 //              ------   View   ------
         JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
-//                      ------   Grid settings   ------
-        addMenuItem(viewMenu, "Grid settings", gridSettingsIcon, KeyEvent.VK_T,
-                "Edit grid settings", this::settingsAction);
+//                      ------   Reset   ------
+        JMenuItem resetMenuItem = addMenuItem(viewMenu, "Reset", resetIcon, KeyEvent.VK_R,
+                "Reset field", this::resetAction);
+        onPlay.add(resetMenuItem);
+//                      ------   Start | Stop   ------
+        JRadioMenuItem playRadioMenuItem = addRadioMenuItem(viewMenu,
+                "Start", startIcon, KeyEvent.VK_S,
+                "Stop", stopIcon, KeyEvent.VK_S,
+                "Start game", "Stop game",
+                this::startAction, this::stopAction);
+//                      ------   Step   ------
+        JMenuItem stepMenuItem = addMenuItem(viewMenu, "Step", stepIcon, KeyEvent.VK_T,
+                "Make single step", this::stepAction);
+        onPlay.add(stepMenuItem);
 //              ------   Help   ------
         JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
 //                      ------   About   ------
@@ -80,7 +110,7 @@ public class MainFrame extends JFrame {
         add(toolBar);
         gridBagLayout.addLayoutComponent(toolBar, new GridBagConstraints(0, 0, 1,
                 1, 1.0, 0.0, GridBagConstraints.NORTH, GridBagConstraints.HORIZONTAL,
-                new Insets(0, 0, 0, 0), 0, 16));
+                new Insets(0, 0, 0, 0), 0, 0));
 //        ------   New   ------
         addToolbarButton(newMenuItem);
 //        ------   Open   ------
@@ -89,8 +119,16 @@ public class MainFrame extends JFrame {
         addToolbarButton(saveMenuItem);
 //        ------      -------
         toolBar.addSeparator();
+//        ------   XOR | Replace   ------
+        addToolBarToggleButton(XORRadioMenuItem);
+//        ------      -------
+        toolBar.addSeparator();
 //        ------   Reset   ------
         addToolbarButton(resetMenuItem);
+//        ------   Play | Stop   ------
+        addToolBarToggleButton(playRadioMenuItem);
+//        ------   Step   ------
+        addToolbarButton(stepMenuItem);
 //        ------      -------
         toolBar.addSeparator();
 //        ------   About   ------
@@ -152,13 +190,80 @@ public class MainFrame extends JFrame {
 
     private JButton addToolbarButton(JMenuItem menuItem) {
         JButton button = new JButton(menuItem.getIcon());
-        button.setPreferredSize(new Dimension(16, 16));
         button.setMargin(new Insets(1, 1, 1, 1));
 
         button.setToolTipText(menuItem.getText());
         button.addMouseListener(menuItem.getMouseListeners()[1]);
 
         button.addActionListener(menuItem.getActionListeners()[0]);
+
+        if (onPlay.contains(menuItem))
+            onPlay.add(button);
+
+        toolBar.add(button);
+        return button;
+    }
+
+    private JRadioMenuItem addRadioMenuItem(JMenu menu,
+                                            String defaultName, Icon defaultIcon, int defaultMnemonic,
+                                            String selectedName, Icon selectedIcon, int selectedMnemonic,
+                                            String defaultStatusBarText, String selectedStatusBarText,
+                                            Runnable startAction, Runnable stopAction) {
+        JRadioMenuItem radioMenuItem = new JRadioMenuItem(defaultName, defaultIcon, defaultMnemonic,
+                                                          selectedName, selectedIcon, selectedMnemonic);
+
+        final JComponent __selected = new JButton();
+        statusBar.addComponent(__selected, selectedStatusBarText);
+        statusBar.addComponent(radioMenuItem, defaultStatusBarText);
+        radioMenuItem.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                if (radioMenuItem.isSelected())
+                    statusBar.setActiveComponent(__selected);
+                else
+                    statusBar.setActiveComponent(radioMenuItem);
+            }
+            @Override
+            public void mouseExited(MouseEvent e) {
+                statusBar.setActiveComponent(null);
+            }
+        });
+
+        radioMenuItem.addActionListener(e -> {
+            statusBar.setActiveComponent(null);
+
+            boolean selected = radioMenuItem.isSelected();
+            if (selected)
+                startAction.run();
+            else
+                stopAction.run();
+        });
+
+        menu.add(radioMenuItem);
+        return radioMenuItem;
+    }
+
+    private JToggleButton addToolBarToggleButton(JRadioMenuItem radioMenuItem) {
+        JToggleButton button = new JToggleButton(radioMenuItem.getDefaultIcon());
+        button.setSelectedIcon(radioMenuItem.getSelectedIcon());
+        button.setMargin(new Insets(1, 1, 1, 1));
+
+        button.setToolTipText(radioMenuItem.getDefaultText());
+        button.addMouseListener(radioMenuItem.getMouseListeners()[1]);
+
+        button.addActionListener(e -> {
+            radioMenuItem.doClick();
+            if (button.isSelected()) {
+                button.setToolTipText(radioMenuItem.getSelectedText());
+            } else {
+                button.setToolTipText(radioMenuItem.getDefaultText());
+            }
+        });
+
+        radioMenuItem.addActionListener(e -> button.setSelected(radioMenuItem.isSelected()));
+
+        if (onPlay.contains(radioMenuItem))
+            onPlay.add(button);
 
         toolBar.add(button);
         return button;
@@ -180,26 +285,57 @@ public class MainFrame extends JFrame {
         processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
     }
 
+    private void settingsAction() {
+        Settings settings = new Settings(gamePanel.getGridSettings());
+        MutableBoolean changed = new MutableBoolean(false);
+
+        MutableBoolean replace = new MutableBoolean(gamePanel.getReplace().isTrue());
+
+        new SettingsDialog(this, settings, changed, replace);
+
+        if (changed.isTrue()) {
+            gamePanel.recountGrid(settings);
+            gameScrollPane.repaint();
+        }
+
+        if (replace.isTrue() ^ gamePanel.getReplace().isTrue())
+            XORRadioMenuItem.doClick();
+
+    }
+
     private void resetAction() {
         gamePanel.clearGrid();
         gamePanel.repaint();
     }
 
-    private void settingsAction() {
-        Grid grid = gamePanel.getGrid();
-        Settings settings = new Settings(grid.getSettings());
+    private void stepAction() {
+        gamePanel.step();
+    }
 
-        MutableBoolean changed = new MutableBoolean(false);
-        new SettingsDialog(this, settings, changed, new MutableBoolean(true));
+    private void startAction() {
+        for (JComponent jComponent : onPlay)
+            jComponent.setEnabled(false);
 
-        if (changed.isTrue()) {
-            gamePanel.recountGrid(settings);
-            gamePanel.repaint();
-        }
+        gamePanel.play();
+    }
+
+    private void stopAction() {
+        for (JComponent jComponent : onPlay)
+            jComponent.setEnabled(true);
+
+        gamePanel.stop();
     }
 
     private void aboutAction() {
         JOptionPane.showMessageDialog(this, "FIT NSU\ng14203\nPopov Vladimir", "About",
                                       JOptionPane.PLAIN_MESSAGE);
+    }
+
+    private void XORAction() {
+        gamePanel.getReplace().setState(false);
+    }
+
+    private void replaceAction() {
+        gamePanel.getReplace().setState(true);
     }
 }

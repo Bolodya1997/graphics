@@ -154,4 +154,24 @@ class GridInfo {
         }
         return closest;
     }
+
+    /**
+     * @param size
+     * @return              font size for impact drawing
+     */
+    static int getFontSize(int size) {
+        return size * 2 / 3;
+    }
+
+    /**
+     * @param gridX
+     * @param gridY
+     * @param size
+     * @param width
+     * @return              starting point for impact drawing
+     */
+    static Point getImpactPosition(int gridX, int gridY, int size, int width) {
+        Point center = getCenter(gridX, gridY, size, width);
+        return new Point(center.x - size / 2, center.y + size / 4);
+    }
 }

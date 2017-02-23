@@ -65,7 +65,16 @@ class Grid {
         return grid[gridX + WIDTH_BORDER][gridY + HEIGHT_BORDER].impact;
     }
 
-    void setAlive(int gridX, int gridY, boolean alive) {
+    void replace(int gridX, int gridY) {
+        setAlive(gridX, gridY, true);
+    }
+
+    void xor(int gridX, int gridY) {
+        boolean alive = grid[gridX + WIDTH_BORDER][gridY + HEIGHT_BORDER].alive;
+        setAlive(gridX, gridY, !alive);
+    }
+
+    private void setAlive(int gridX, int gridY, boolean alive) {
         grid[gridX + WIDTH_BORDER][gridY + HEIGHT_BORDER].alive = alive;
         recountImpact();
     }

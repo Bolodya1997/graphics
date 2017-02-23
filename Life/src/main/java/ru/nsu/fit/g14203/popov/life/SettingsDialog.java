@@ -11,10 +11,10 @@ import java.awt.event.*;
 
 class SettingsDialog extends JDialog {
 
-    JPanel fieldPropertiesPanel = titledBorderPanel("Field properties");
-    JPanel modePanel = titledBorderPanel("Mode");
-    JPanel impactPanel = titledBorderPanel("Impact");
-    JPanel environmentPanel = titledBorderPanel("Environment");
+    private JPanel fieldPropertiesPanel = titledBorderPanel("Field properties");
+    private JPanel modePanel = titledBorderPanel("Mode");
+    private JPanel impactPanel = titledBorderPanel("Impact");
+    private JPanel environmentPanel = titledBorderPanel("Environment");
 
     private Settings settings;
     private MutableBoolean changed;
