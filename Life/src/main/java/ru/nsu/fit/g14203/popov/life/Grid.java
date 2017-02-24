@@ -1,6 +1,8 @@
 package ru.nsu.fit.g14203.popov.life;
 
 import java.awt.*;
+import java.io.InputStream;
+import java.util.Scanner;
 
 class Grid {
 
@@ -24,6 +26,18 @@ class Grid {
     private static final int HEIGHT_BORDER = 2;
 
     private Cell[][] grid;
+
+    static Grid parseStream(InputStream stream) {
+        Scanner scanner = new Scanner(stream);
+
+        Settings settings = new Settings();
+        settings.gridWidth.setValue(scanner.nextInt());
+        settings.gridHeight.setValue(scanner.nextInt());
+        settings.size.setValue(scanner.nextInt());
+        settings.width.setValue(scanner.nextInt());
+
+        return new Grid(settings);
+    }
 
     Grid(Settings settings) {
         this.settings = settings;
