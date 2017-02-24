@@ -1,8 +1,13 @@
 package ru.nsu.fit.g14203.popov.life;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Scanner;
+import java.util.function.Supplier;
 
 class Grid {
 
@@ -29,14 +34,65 @@ class Grid {
 
     static Grid parseStream(InputStream stream) {
         Scanner scanner = new Scanner(stream);
+        Supplier<Integer[]> getNextLineParsed = () -> {
+            String nextLine, noComments = "";
+            while (noComments.isEmpty()) {
+                nextLine = scanner.nextLine();
+                noComments = nextLine.replaceFirst("//.*", "");
+            }
+
+            return Arrays.stream(noComments.split(" "))
+                    .map(Integer::decode)
+                    .toArray(Integer[]::new);
+        };
 
         Settings settings = new Settings();
-        settings.gridWidth.setValue(scanner.nextInt());
-        settings.gridHeight.setValue(scanner.nextInt());
-        settings.size.setValue(scanner.nextInt());
-        settings.width.setValue(scanner.nextInt());
+        Integer[] parsed = getNextLineParsed.get();
+        settings.gridWidth.setValue(parsed[0]);
+        settings.gridHeight.setValue(parsed[1]);
 
-        return new Grid(settings);
+        parsed = getNextLineParsed.get();
+        settings.width.setValue(parsed[0]);
+
+        parsed = getNextLineParsed.get();
+        settings.size.setValue(parsed[0]);
+
+        Grid grid = new Grid(settings);
+
+        parsed = getNextLineParsed.get();
+        int count = parsed[0];
+        while (count-- > 0) {
+            parsed = getNextLineParsed.get();
+            int x = parsed[0];
+            int y = parsed[1];
+
+            grid.setAlive(x, y, true);
+        }
+
+        return grid;
+    }
+
+    void printToStream(OutputStream stream) {
+        PrintStream output = new PrintStream(stream);
+        int alive = 0;
+        for (Cell[] row : grid) {
+            for (Cell cell : row) {
+                if (cell.alive)
+                    ++alive;
+            }
+        }
+
+        output.printf("%d %d\n", settings.gridWidth.getValue(), settings.gridHeight.getValue());
+        output.println(settings.width.getValue());
+        output.println(settings.size.getValue());
+        output.println(alive);
+        for (int x = 0; x < settings.gridWidth.getValue(); x++) {
+            for (int y = 0; y < settings.gridHeight.getValue(); y++) {
+                if (grid[x + WIDTH_BORDER][y + HEIGHT_BORDER].alive)
+                    output.printf("%d %d\n", x, y);
+            }
+        }
+
     }
 
     Grid(Settings settings) {

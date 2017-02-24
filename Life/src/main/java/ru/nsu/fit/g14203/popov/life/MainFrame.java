@@ -7,6 +7,9 @@ import ru.nsu.fit.g14203.popov.life.util.StatusBar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.*;
 
 public class MainFrame extends JFrame {
@@ -296,11 +299,36 @@ public class MainFrame extends JFrame {
     }
 
     private void openAction() {
+        JFileChooser chooser = new JFileChooser();
+        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
+            return;
 
+        FileInputStream stream;
+        try {
+            stream = new FileInputStream(chooser.getSelectedFile());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        gamePanel.readFromStream(stream);
+        gameScrollPane.repaint();
     }
 
     private void saveAction() {
+        JFileChooser chooser = new JFileChooser();
+        if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
+            return;
 
+        FileOutputStream stream;
+        try {
+            stream = new FileOutputStream(chooser.getSelectedFile());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        gamePanel.printToStream(stream);
     }
 
     private void exitAction() {
@@ -317,6 +345,7 @@ public class MainFrame extends JFrame {
 
         if (changed.isTrue()) {
             gamePanel.recountGrid(settings);
+            gameScrollPane.repaint();
         }
 
         if (replace.isTrue() ^ gamePanel.getReplace().isTrue())

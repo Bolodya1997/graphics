@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 class GamePanel extends JPanel {
 
@@ -22,6 +24,8 @@ class GamePanel extends JPanel {
 
     private MutableBoolean impact = new MutableBoolean(false);
     private MutableBoolean colors = new MutableBoolean(false);
+
+    private boolean changed = false;
 
     private Point lastDragged = null;
 
@@ -63,10 +67,6 @@ class GamePanel extends JPanel {
         return replace;
     }
 
-    MutableBoolean getPlay() {
-        return play;
-    }
-
     MutableBoolean getImpact() {
         return impact;
     }
@@ -78,21 +78,21 @@ class GamePanel extends JPanel {
     void recountGrid(Settings settings) {
         grid.setSettings(settings);
 
-        int gridWidth = settings.gridWidth.getValue();
-        int gridHeight = settings.gridHeight.getValue();
-        int size = settings.size.getValue();
-        int width = settings.width.getValue();
+        drawGrid();
+        fillCells();
+        repaint();
+    }
 
-        int pixelWidth = GridInfo.getWidth(gridWidth, size, width);
-        int pixelHeight = GridInfo.getHeight(gridHeight, size, width);
-        preferredSize = new Dimension(pixelWidth, pixelHeight);
-
-        canvas = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_RGB);
-        canvas.getGraphics().fillRect(0, 0, pixelWidth, pixelHeight);
+    void readFromStream(InputStream stream) {
+        grid = Grid.parseStream(stream);
 
         drawGrid();
         fillCells();
         repaint();
+    }
+
+    void printToStream(OutputStream stream) {
+        grid.printToStream(stream);
     }
 
     void clearGrid() {
@@ -138,6 +138,13 @@ class GamePanel extends JPanel {
         int gridHeight = grid.getSettings().gridHeight.getValue();
         int size = grid.getSettings().size.getValue();
         int width = grid.getSettings().width.getValue();
+
+        int pixelWidth = GridInfo.getWidth(gridWidth, size, width);
+        int pixelHeight = GridInfo.getHeight(gridHeight, size, width);
+        preferredSize = new Dimension(pixelWidth, pixelHeight);
+
+        canvas = new BufferedImage(pixelWidth, pixelHeight, BufferedImage.TYPE_INT_RGB);
+        canvas.getGraphics().fillRect(0, 0, pixelWidth, pixelHeight);
 
         Graphics2D g = canvas.createGraphics();
         g.setStroke(new BasicStroke(width));
