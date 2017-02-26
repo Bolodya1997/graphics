@@ -73,7 +73,7 @@ public class MainFrame extends JFrame {
 //              ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
 //                      ------   Grid settings   ------
-        addMenuItem(editMenu, "Grid settings", gridSettingsIcon, KeyEvent.VK_S,
+        JMenuItem gridSettingsMenuItem = addMenuItem(editMenu, "Grid settings", gridSettingsIcon, KeyEvent.VK_S,
                 "Edit grid settings", this::settingsAction);
 //                      ------   ------
         editMenu.addSeparator();
@@ -138,14 +138,16 @@ public class MainFrame extends JFrame {
         addToolbarButton(saveMenuItem);
 //        ------      -------
         toolBar.addSeparator();
+//        ------   Grid settings   ------
+        addToolbarButton(gridSettingsMenuItem);
+//        ------   XOR | Replace   ------
+        addToolBarToggleButton(XORRadioMenuItem);
+//        ------      -------
+        toolBar.addSeparator();
 //        ------   Impact   -------
         addToolBarToggleButton(impactRadioMenuItem);
 //        ------   Colors   ------
         addToolBarToggleButton(colorsRadioMenuItem);
-//        ------      -------
-        toolBar.addSeparator();
-//        ------   XOR | Replace   ------
-        addToolBarToggleButton(XORRadioMenuItem);
 //        ------      -------
         toolBar.addSeparator();
 //        ------   Reset   ------
