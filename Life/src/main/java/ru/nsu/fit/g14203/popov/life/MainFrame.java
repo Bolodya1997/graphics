@@ -7,12 +7,12 @@ import ru.nsu.fit.g14203.popov.life.util.StatusBar;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.*;
 
 public class MainFrame extends JFrame {
+
+    private static final String TITLE = "Live";
 
     private JMenuBar menuBar = new JMenuBar();
     private JToolBar toolBar = new JToolBar();
@@ -23,11 +23,19 @@ public class MainFrame extends JFrame {
 
     private JRadioMenuItem XORRadioMenuItem;
 
+    private Saver saver = new Saver();
+
     private java.util.List<JComponent> onPlay = new LinkedList<>();
 
     public MainFrame() {
-        super("Life");
-        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        setTitle(String.format("%s - %s", saver.getName(), TITLE));
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                exitAction();
+            }
+        });
 
 //        ------   size   ------
         setMinimumSize(new Dimension(800, 600));
@@ -40,6 +48,7 @@ public class MainFrame extends JFrame {
         ImageIcon newIcon = new ImageIcon(MainFrame.class.getResource("New.png"));
         ImageIcon openIcon = new ImageIcon(MainFrame.class.getResource("Open.png"));
         ImageIcon saveIcon = new ImageIcon(MainFrame.class.getResource("Save.png"));
+        ImageIcon saveAsIcon = new ImageIcon(MainFrame.class.getResource("Save_as.png"));
         ImageIcon exitIcon = new ImageIcon(MainFrame.class.getResource("Exit.png"));
         ImageIcon aboutIcon = new ImageIcon(MainFrame.class.getResource("About.png"));
         ImageIcon resetIcon = new ImageIcon(MainFrame.class.getResource("Reset.png"));
@@ -59,12 +68,19 @@ public class MainFrame extends JFrame {
 //                      ------   New   ------
         JMenuItem newMenuItem = addMenuItem(fileMenu, "New", newIcon, KeyEvent.VK_N,
                 "Create new empty field", this::newAction);
+        onPlay.add(newMenuItem);
 //                      ------   Open   ------
         JMenuItem openMenuItem = addMenuItem(fileMenu, "Open", openIcon, KeyEvent.VK_O,
                 "Open a field in game", this::openAction);
+        onPlay.add(openMenuItem);
 //                      ------   Save   ------
         JMenuItem saveMenuItem = addMenuItem(fileMenu, "Save", saveIcon, KeyEvent.VK_S,
-                "Save field", this::saveAction);
+                "Save current field", this::saveAction);
+        onPlay.add(saveMenuItem);
+//                      ------   Save as   ------
+        JMenuItem saveAsMenuItem = addMenuItem(fileMenu, "Save as...", saveAsIcon, KeyEvent.VK_A,
+                "Save current field with a new name", this::saveAsAction);
+        onPlay.add(saveAsMenuItem);
 //                      ------      ------
         fileMenu.addSeparator();
 //                      ------   Exit   ------
@@ -83,6 +99,20 @@ public class MainFrame extends JFrame {
                 "Replace", replaceModeIcon, KeyEvent.VK_R,
                 "Inverse cell state on click", "Set cell alive",
                 () -> gamePanel.getReplace().setState(false), () -> gamePanel.getReplace().setState(true));
+//              ------   View   ------
+        JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
+//                      ------   Impact   ------
+        JRadioMenuItem impactRadioMenuItem = addRadioMenuItem(viewMenu,
+                "Impact", impactIcon, KeyEvent.VK_I,
+                "Impact", impactIcon, KeyEvent.VK_I,
+                "Show impact values", "Hide impact values",
+                () -> gamePanel.getImpact().setState(true), () -> gamePanel.getImpact().setState(false));
+//                      ------   Colors   ------
+        JRadioMenuItem colorsRadioMenuItem = addRadioMenuItem(viewMenu,
+                "Colors", colorsIcon, KeyEvent.VK_I,
+                "Colors", colorsIcon, KeyEvent.VK_I,
+                "Show impact base colors", "Hide impact base colors",
+                this::enableColors, this::disableColor);
 //              ------   Action   ------
         JMenu actionMenu = addMenu("Action", KeyEvent.VK_A);
 //                      ------   Reset   ------
@@ -99,20 +129,6 @@ public class MainFrame extends JFrame {
         JMenuItem stepMenuItem = addMenuItem(actionMenu, "Step", stepIcon, KeyEvent.VK_T,
                 "Make single step", this::stepAction);
         onPlay.add(stepMenuItem);
-//              ------   View   ------
-        JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
-//                      ------   Impact   ------
-        JRadioMenuItem impactRadioMenuItem = addRadioMenuItem(viewMenu,
-                "Impact", impactIcon, KeyEvent.VK_I,
-                "Impact", impactIcon, KeyEvent.VK_I,
-                "Show impact values", "Hide impact values",
-                () -> gamePanel.getImpact().setState(true), () -> gamePanel.getImpact().setState(false));
-//                      ------   Colors   ------
-        JRadioMenuItem colorsRadioMenuItem = addRadioMenuItem(viewMenu,
-                "Colors", colorsIcon, KeyEvent.VK_I,
-                "Colors", colorsIcon, KeyEvent.VK_I,
-                "Show impact base colors", "Hide impact base colors",
-                this::enableColors, this::disableColor);
 //              ------   Help   ------
         JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
 //                      ------   About   ------
@@ -297,44 +313,93 @@ public class MainFrame extends JFrame {
     }
 
     private void newAction() {
+        if (gamePanel.isChanged()) {
+            int option = JOptionPane.showConfirmDialog(this,
+                    String.format("Do you want to save changes in %s?", saver.getName()));
 
+            if (option == JOptionPane.CANCEL_OPTION)
+                return;
+
+            if (option == JOptionPane.YES_OPTION)
+                saveAction();
+        }   //  TODO: fix copy + pasted text D:
+
+        saver.reset();
+        setTitle(String.format("%s - %s", saver.getName(), TITLE));
+
+        gamePanel = new GamePanel();
+        gameScrollPane.setViewportView(gamePanel);
     }
 
     private void openAction() {
-        JFileChooser chooser = new JFileChooser();
-        if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
-            return;
+        if (gamePanel.isChanged()) {
+            int option = JOptionPane.showConfirmDialog(this,
+                    String.format("Do you want to save changes in %s?", saver.getName()));
 
-        FileInputStream stream;
+            if (option == JOptionPane.CANCEL_OPTION)
+                return;
+
+            if (option == JOptionPane.YES_OPTION)
+                saveAction();
+        }   //  TODO: fix copy + pasted text D:
+
+        InputStream stream;
         try {
-            stream = new FileInputStream(chooser.getSelectedFile());
+            stream = saver.open();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             return;
         }
 
-        gamePanel.readFromStream(stream);
-        gameScrollPane.repaint();
+        setTitle(String.format("%s - %s", saver.getName(), TITLE));
+
+        try {
+            gamePanel.readFromStream(stream);
+            gameScrollPane.repaint();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Bad input file format", "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void saveAsAction() {
+        OutputStream stream;
+        try {
+            stream = saver.saveAs();
+        } catch (FileNotFoundException e) {
+            return;
+        }
+
+        setTitle(String.format("%s - %s", saver.getName(), TITLE));
+
+        gamePanel.printToStream(stream);
     }
 
     private void saveAction() {
-        JFileChooser chooser = new JFileChooser();
-        if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
-            return;
-
-        FileOutputStream stream;
+        OutputStream stream;
         try {
-            stream = new FileOutputStream(chooser.getSelectedFile());
+            stream = saver.save();
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
             return;
         }
+
+        setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
         gamePanel.printToStream(stream);
     }
 
     private void exitAction() {
-        processWindowEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        if (gamePanel.isChanged()) {
+            int option = JOptionPane.showConfirmDialog(this,
+                    String.format("Do you want to save changes in %s?", saver.getName()));
+
+            if (option == JOptionPane.CANCEL_OPTION)
+                return;
+
+            if (option == JOptionPane.YES_OPTION)
+                saveAction();
+        }   //  TODO: fix copy + pasted text D:
+
+        System.exit(0);
     }
 
     private void settingsAction() {

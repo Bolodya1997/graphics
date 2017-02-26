@@ -25,8 +25,6 @@ class GamePanel extends JPanel {
     private MutableBoolean impact = new MutableBoolean(false);
     private MutableBoolean colors = new MutableBoolean(false);
 
-    private boolean changed = false;
-
     private Point lastDragged = null;
 
     private Color deadDeadColor   = new Color(0x8EF3FF);
@@ -37,7 +35,8 @@ class GamePanel extends JPanel {
     private Timer playTimer = new Timer(1000, e -> step());
 
     GamePanel() {
-        recountGrid(grid.getSettings());
+        drawGrid();
+        fillCells();
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -116,6 +115,10 @@ class GamePanel extends JPanel {
     void stop() {
         play.setState(false);
         playTimer.stop();
+    }
+
+    boolean isChanged() {
+        return grid.isChanged();
     }
 
 //    ------   draw   ------

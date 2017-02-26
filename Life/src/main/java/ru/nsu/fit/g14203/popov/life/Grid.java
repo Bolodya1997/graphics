@@ -1,6 +1,5 @@
 package ru.nsu.fit.g14203.popov.life;
 
-import javax.swing.*;
 import java.awt.*;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,6 +30,8 @@ class Grid {
     private static final int HEIGHT_BORDER = 2;
 
     private Cell[][] grid;
+
+    private boolean changed = false;
 
     static Grid parseStream(InputStream stream) {
         Scanner scanner = new Scanner(stream);
@@ -69,6 +70,8 @@ class Grid {
             grid.setAlive(x, y, true);
         }
 
+        grid.changed = false;
+
         return grid;
     }
 
@@ -93,6 +96,7 @@ class Grid {
             }
         }
 
+        changed = false;
     }
 
     Grid(Settings settings) {
@@ -105,8 +109,14 @@ class Grid {
     }
 
     void setSettings(Settings settings) {
+        changed = true;
+
         this.settings = settings;
         recountGridSize();
+    }
+
+    boolean isChanged() {
+        return changed;
     }
 
     private synchronized void recountGridSize() {
@@ -123,6 +133,8 @@ class Grid {
     }
 
     void clear() {
+        changed = true;
+
         for (int x = 1; x < settings.gridWidth.getValue() + WIDTH_BORDER; x++) {
             for (int y = 1; y < settings.gridHeight.getValue() + HEIGHT_BORDER; y++) {
                 grid[x][y].impact = 0.0;
@@ -145,6 +157,8 @@ class Grid {
     }
 
     private void setAlive(int gridX, int gridY, boolean alive) {
+        changed = true;
+
         grid[gridX + WIDTH_BORDER][gridY + HEIGHT_BORDER].alive = alive;
         recountImpact();
     }
@@ -154,6 +168,8 @@ class Grid {
     }
 
     synchronized void step() {
+        changed = true;
+
         for (int x = 1; x < settings.gridWidth.getValue() + WIDTH_BORDER; x++) {
             for (int y = 1; y < settings.gridHeight.getValue() + HEIGHT_BORDER; y++)
                 grid[x][y].recountAlive();
