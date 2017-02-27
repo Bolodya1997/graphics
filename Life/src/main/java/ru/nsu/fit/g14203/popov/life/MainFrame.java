@@ -329,6 +329,7 @@ public class MainFrame extends JFrame {
 
         gamePanel = new GamePanel();
         gameScrollPane.setViewportView(gamePanel);
+	gameScrollPane.repaint();
     }
 
     private void openAction() {

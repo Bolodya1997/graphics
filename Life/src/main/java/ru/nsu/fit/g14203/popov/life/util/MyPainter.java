@@ -119,15 +119,15 @@ public class MyPainter {
         int x1, x2;
 
         for (x1 = x; x1 > 0 && canvas.getRGB(x1, y) == oldColor; x1--);
+
         if (canvas.getRGB(x1, y) != oldColor)
             ++x1;
 
-        for (x2 = x; x2 < canvas.getWidth() - 1 && canvas.getRGB(x2, y) == oldColor; x2++);
+        for (x2 = x1; x2 < canvas.getWidth() - 1 && canvas.getRGB(x2, y) == oldColor; x2++)
+            canvas.setRGB(x2, y, newColor);
+
         if (canvas.getRGB(x2, y) != oldColor)
             --x2;
-
-        for (x = x1; x <= x2; x++)
-            canvas.setRGB(x, y, newColor);
 
         return new Span(x1, x2, y);
     }

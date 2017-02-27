@@ -81,8 +81,18 @@ class GridInfo {
      * @return              coordinates of hexagonal cell center
      */
     static Point getCenter(int gridX, int gridY, int size, int width) {
-        Point base = getPoints(gridX, gridY, size, width)[0];
-        return new Point(base.x, base.y + size(size, width));
+        Point center;
+        if (gridY % 2 == 0)
+            center = new Point(cellWidth(size, width) / 2, 0);
+        else
+            center = new Point(cellWidth(size, width), size(size, width) * 3 / 2);
+
+        center.x += cellWidth(size, width) * gridX
+                + width;
+        center.y += (cellHeight(size, width) + size(size, width)) * (gridY >= 0 ? gridY / 2 : (gridY - 1) / 2) + size(size, width)
+                + width;
+
+        return center;
     }
 
     /**
