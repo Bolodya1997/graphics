@@ -104,7 +104,7 @@ public class MyPainter {
             if (cur.y <= 0 || cur.y >= canvas.getHeight() - 1)
                 continue;
 
-            for (int __x = cur.x1; __x < cur.x2; __x++) {
+            for (int __x = cur.x1; __x <= cur.x2; __x++) {
                 if (canvas.getRGB(__x, cur.y + 1) == oldColor)
                     stack.push(fillSpan(canvas, __x, cur.y + 1, oldColor, color.getRGB()));
                 if (canvas.getRGB(__x, cur.y - 1) == oldColor)

@@ -54,9 +54,9 @@ class SettingsDialog extends JDialog {
 //              ------   Columns   ------
         addFieldPropertiesBlock("Columns", 1, 100, settings.gridWidth);
 //              ------   Cell size   ------
-        addFieldPropertiesBlock("Cell size", 1, 100, settings.size);
+        addFieldPropertiesBlock("Cell size", 2, 50, settings.size);
 //              ------   Grid width   ------
-        addFieldPropertiesBlock("Grid width", 1, 100, settings.width);
+        addFieldPropertiesBlock("Grid width", 1, 50, settings.width);
 //        ------   Mode   ------
         modePanel = titledBorderPanel("Mode");
         add(modePanel);
