@@ -106,7 +106,7 @@ public class MainFrame extends JFrame {
                 "Impact", impactIcon, KeyEvent.VK_I,
                 "Impact", impactIcon, KeyEvent.VK_I,
                 "Show impact values", "Hide impact values",
-                () -> gamePanel.getImpact().setState(true), () -> gamePanel.getImpact().setState(false));
+                this::enableImpact, this::disableImpact);
 //                      ------   Colors   ------
         JRadioMenuItem colorsRadioMenuItem = addRadioMenuItem(viewMenu,
                 "Colors", colorsIcon, KeyEvent.VK_I,
@@ -458,6 +458,16 @@ public class MainFrame extends JFrame {
     private void disableColor() {
         gamePanel.getColors().setState(false);
         gamePanel.fillCells();
+        gamePanel.repaint();
+    }
+
+    private void enableImpact() {
+        gamePanel.getImpact().setState(true);
+        gamePanel.repaint();
+    }
+
+    private void disableImpact() {
+        gamePanel.getImpact().setState(false);
         gamePanel.repaint();
     }
 }
