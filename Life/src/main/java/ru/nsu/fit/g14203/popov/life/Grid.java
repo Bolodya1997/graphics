@@ -1,6 +1,7 @@
 package ru.nsu.fit.g14203.popov.life;
 
 import java.awt.*;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -70,8 +71,9 @@ class Grid {
             grid.setAlive(x, y, true);
         }
 
-        grid.changed = false;
+        scanner.close();
 
+        grid.changed = false;
         return grid;
     }
 
@@ -95,6 +97,8 @@ class Grid {
                     output.printf("%d %d\n", x, y);
             }
         }
+
+        output.close();
 
         changed = false;
     }

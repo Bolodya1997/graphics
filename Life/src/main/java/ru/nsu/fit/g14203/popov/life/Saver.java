@@ -8,8 +8,8 @@ class Saver {
     private static final String HOME_DIRECTORY = "FIT_14203_Popov_Vladimir_Life_Data";
     private static final String DEFAULT_NAME = "Untitled";
 
-    private File currentFile;
     private String name = DEFAULT_NAME;
+    private String path = null;
 
     String getName() {
         return name;
@@ -17,6 +17,7 @@ class Saver {
 
     void reset() {
         name = DEFAULT_NAME;
+        path = null;
     }
 
     InputStream open() throws FileNotFoundException {
@@ -24,17 +25,18 @@ class Saver {
         if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
             throw new FileNotFoundException();
 
-        currentFile = chooser.getSelectedFile();
-        name = currentFile.getName();
+        File file = chooser.getSelectedFile();
+        name = file.getName();
+        path = file.getPath();
 
-        return new FileInputStream(currentFile);
+        return new FileInputStream(file);
     }
 
     OutputStream save() throws FileNotFoundException {
-        if (currentFile != null)
-            return new FileOutputStream(currentFile);
+        if (path == null)
+            return saveAs();
 
-        return saveAs();
+        return new FileOutputStream(path);
     }
 
     OutputStream saveAs() throws FileNotFoundException {
@@ -42,9 +44,10 @@ class Saver {
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
             throw new FileNotFoundException();
 
-        currentFile = chooser.getSelectedFile();
-        name = currentFile.getName();
+        File file = chooser.getSelectedFile();
+        name = file.getName();
+        path = file.getPath();
 
-        return new FileOutputStream(chooser.getSelectedFile());
+        return new FileOutputStream(file);
     }
 }

@@ -150,7 +150,7 @@ class GamePanel extends JPanel {
         canvas.getGraphics().fillRect(0, 0, pixelWidth, pixelHeight);
 
         Graphics2D g = canvas.createGraphics();
-        g.setStroke(new BasicStroke(width));
+        g.setStroke(new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         g.setColor(Color.BLACK);
 
         for (int gridX = 0; gridX < gridWidth; gridX++) {

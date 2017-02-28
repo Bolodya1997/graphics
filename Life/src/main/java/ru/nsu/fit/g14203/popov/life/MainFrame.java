@@ -367,6 +367,8 @@ public class MainFrame extends JFrame {
         try {
             stream = saver.saveAs();
         } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Error on saving", "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -380,6 +382,8 @@ public class MainFrame extends JFrame {
         try {
             stream = saver.save();
         } catch (FileNotFoundException e) {
+            JOptionPane.showMessageDialog(this, "Error on saving", "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
