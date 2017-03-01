@@ -5,8 +5,8 @@ import ru.nsu.fit.g14203.popov.life.util.MutableInteger;
 
 class Settings {
 
-    MutableInteger gridWidth = new MutableInteger(1);
-    MutableInteger gridHeight = new MutableInteger(1);
+    MutableInteger gridWidth = new MutableInteger(10);
+    MutableInteger gridHeight = new MutableInteger(10);
 
     MutableInteger size = new MutableInteger(50);
     MutableInteger width = new MutableInteger(1);

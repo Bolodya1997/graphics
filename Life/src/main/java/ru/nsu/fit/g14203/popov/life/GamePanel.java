@@ -217,11 +217,18 @@ class GamePanel extends JPanel {
         int size = grid.getSettings().size.getValue();
         int width = grid.getSettings().width.getValue();
 
+        if (size < 7)
+            return;
+
         g.setFont(new Font("SERIF", Font.PLAIN, GridInfo.getFontSize(size)));
         for (int gridX = 0; gridX < gridWidth; gridX++) {
             for (int gridY = 0; gridY < gridHeight; gridY++) {
-                Point pos = GridInfo.getImpactPosition(gridX, gridY, size, width);
-                String impact = String.format("%.1f", grid.getImpact(gridX, gridY));
+                double __impact = grid.getImpact(gridX, gridY);
+                String format = (((double) ((int) __impact)) == __impact) ? "%.0f" : "%.1f";
+
+                String impact = String.format(format, __impact);
+
+                Point pos = GridInfo.getImpactPosition(gridX, gridY, size, width, impact.length());
                 g.drawChars(impact.toCharArray(), 0, impact.length(), pos.x, pos.y);
             }
         }

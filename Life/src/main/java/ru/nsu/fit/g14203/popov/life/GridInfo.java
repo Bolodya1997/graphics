@@ -33,6 +33,7 @@ class GridInfo {
 
     /**
      * @param gridWidth     in cells
+     * @param gridHeight    in cells
      * @param size
      * @param width
      * @return              grid cellWidth in pixels
@@ -189,7 +190,7 @@ class GridInfo {
      * @return              font size for impact drawing
      */
     static int getFontSize(int size) {
-        return size * 2 / 3;
+        return size * 3 / 4;
     }
 
     /**
@@ -197,10 +198,14 @@ class GridInfo {
      * @param gridY
      * @param size
      * @param width
+     * @param len           length of the impact string (must be 1 or 3)
      * @return              starting point for impact drawing
      */
-    static Point getImpactPosition(int gridX, int gridY, int size, int width) {
-        Point center = getCenter(gridX, gridY, size, width);
-        return new Point(center.x - size / 2, center.y + size / 4);
+    static Point getImpactPosition(int gridX, int gridY, int size, int width, int len) {
+        Point point = getCenter(gridX, gridY, size, width);
+        point.x -= (len == 1) ? size * 8 / 38 : size * 22 / 38;
+        point.y += size * 25 / 80;
+
+        return point;
     }
 }
