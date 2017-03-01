@@ -23,7 +23,7 @@ class Saver {
     InputStream open() throws FileNotFoundException {
         JFileChooser chooser = new JFileChooser(HOME_DIRECTORY);
         if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
-            throw new FileNotFoundException();
+            return null;
 
         File file = chooser.getSelectedFile();
         name = file.getName();
@@ -42,7 +42,7 @@ class Saver {
     OutputStream saveAs() throws FileNotFoundException {
         JFileChooser chooser = new JFileChooser(HOME_DIRECTORY);
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
-            throw new FileNotFoundException();
+            return null;
 
         File file = chooser.getSelectedFile();
         name = file.getName();

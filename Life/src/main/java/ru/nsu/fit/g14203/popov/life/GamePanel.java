@@ -85,6 +85,9 @@ class GamePanel extends JPanel {
     void readFromStream(InputStream stream) {
         grid = Grid.parseStream(stream);
 
+        impact.setState(false);
+        colors.setState(false);
+
         drawGrid();
         fillCells();
         repaint();
@@ -142,7 +145,7 @@ class GamePanel extends JPanel {
         int size = grid.getSettings().size.getValue();
         int width = grid.getSettings().width.getValue();
 
-        int pixelWidth = GridInfo.getWidth(gridWidth, size, width);
+        int pixelWidth = GridInfo.getWidth(gridWidth, gridHeight, size, width);
         int pixelHeight = GridInfo.getHeight(gridHeight, size, width);
         preferredSize = new Dimension(pixelWidth, pixelHeight);
 
@@ -228,14 +231,12 @@ class GamePanel extends JPanel {
         if (play.isTrue())
             return;
 
-        if (e.getX() < 0 || e.getX() >= canvas.getWidth())
+        if (e.getX() < 0 || e.getX() >= canvas.getWidth()
+                || e.getY() < 0 || e.getY() >= canvas.getHeight()
+                || (canvas.getRGB(e.getX(), e.getY()) & 0xFFFFFF) == 0x000000) {
+            lastDragged = null;
             return;
-        if (e.getY() < 0 || e.getY() >= canvas.getHeight())
-            return;
-
-        int RGB = canvas.getRGB(e.getX(), e.getY()) & 0xFFFFFF;
-        if (RGB == 0x000000)
-            return;
+        }
 
         int gridWidth = grid.getSettings().gridWidth.getValue();
         int gridHeight = grid.getSettings().gridHeight.getValue();
@@ -243,13 +244,13 @@ class GamePanel extends JPanel {
         int width = grid.getSettings().width.getValue();
 
         Point pos = GridInfo.getGridPosition(e.getX(), e.getY(), size, width);
-        if (pos.x < 0 || gridWidth <= pos.x || pos.y < 0 || gridHeight <= pos.y)
+        if (pos.x < 0 || gridWidth <= pos.x || pos.y < 0 || gridHeight <= pos.y) {
+            lastDragged = null;
             return;
-
-        if (lastDragged != null) {
-            if (lastDragged.equals(pos))
-                return;
         }
+
+        if (pos.equals(lastDragged))
+            return;
         lastDragged = pos;
 
         if (replace.isTrue())

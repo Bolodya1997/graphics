@@ -22,6 +22,8 @@ public class MainFrame extends JFrame {
     private JScrollPane gameScrollPane = new JScrollPane(gamePanel);
 
     private JRadioMenuItem XORRadioMenuItem;
+    private JRadioMenuItem impactRadioMenuItem;
+    private JRadioMenuItem colorsRadioMenuItem;
 
     private Saver saver = new Saver();
 
@@ -38,7 +40,7 @@ public class MainFrame extends JFrame {
         });
 
 //        ------   size   ------
-        setMinimumSize(new Dimension(800, 600));
+        setSize(new Dimension(800, 600));
 
 //        ------   location   ------
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -102,13 +104,13 @@ public class MainFrame extends JFrame {
 //              ------   View   ------
         JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
 //                      ------   Impact   ------
-        JRadioMenuItem impactRadioMenuItem = addRadioMenuItem(viewMenu,
+        impactRadioMenuItem = addRadioMenuItem(viewMenu,
                 "Impact", impactIcon, KeyEvent.VK_I,
                 "Impact", impactIcon, KeyEvent.VK_I,
                 "Show impact values", "Hide impact values",
                 this::enableImpact, this::disableImpact);
 //                      ------   Colors   ------
-        JRadioMenuItem colorsRadioMenuItem = addRadioMenuItem(viewMenu,
+        colorsRadioMenuItem = addRadioMenuItem(viewMenu,
                 "Colors", colorsIcon, KeyEvent.VK_I,
                 "Colors", colorsIcon, KeyEvent.VK_I,
                 "Show impact base colors", "Hide impact base colors",
@@ -327,9 +329,14 @@ public class MainFrame extends JFrame {
         saver.reset();
         setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
+        if (impactRadioMenuItem.isSelected())
+            impactRadioMenuItem.doClick();
+        if (colorsRadioMenuItem.isSelected())
+            colorsRadioMenuItem.doClick();
+
         gamePanel = new GamePanel();
         gameScrollPane.setViewportView(gamePanel);
-	gameScrollPane.repaint();
+	    gameScrollPane.repaint();
     }
 
     private void openAction() {
@@ -351,15 +358,24 @@ public class MainFrame extends JFrame {
             return;
         }
 
+        if (stream == null)
+            return;
         setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
         try {
             gamePanel.readFromStream(stream);
-            gameScrollPane.repaint();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Bad input file format", "Error",
                     JOptionPane.ERROR_MESSAGE);
+            return;
         }
+
+        if (impactRadioMenuItem.isSelected())
+            impactRadioMenuItem.doClick();
+        if (colorsRadioMenuItem.isSelected())
+            colorsRadioMenuItem.doClick();
+
+        gameScrollPane.repaint();
     }
 
     private void saveAsAction() {
@@ -372,6 +388,8 @@ public class MainFrame extends JFrame {
             return;
         }
 
+        if (stream == null)
+            return;
         setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
         gamePanel.printToStream(stream);
@@ -387,6 +405,8 @@ public class MainFrame extends JFrame {
             return;
         }
 
+        if (stream == null)
+            return;
         setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
         gamePanel.printToStream(stream);

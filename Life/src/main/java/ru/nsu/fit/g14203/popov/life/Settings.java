@@ -5,11 +5,11 @@ import ru.nsu.fit.g14203.popov.life.util.MutableInteger;
 
 class Settings {
 
-    MutableInteger gridWidth = new MutableInteger(15);
-    MutableInteger gridHeight = new MutableInteger(17);
+    MutableInteger gridWidth = new MutableInteger(1);
+    MutableInteger gridHeight = new MutableInteger(1);
 
-    MutableInteger size = new MutableInteger(20);
-    MutableInteger width = new MutableInteger(3);
+    MutableInteger size = new MutableInteger(50);
+    MutableInteger width = new MutableInteger(1);
 
     MutableDouble lifeBegin = new MutableDouble(2.0);
     MutableDouble lifeEnd = new MutableDouble(3.3);

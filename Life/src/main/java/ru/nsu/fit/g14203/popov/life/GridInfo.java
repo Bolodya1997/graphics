@@ -7,11 +7,24 @@ class GridInfo {
     private static final Point badPoint = new Point(-1, -1);
 
     private static int size(int size, int width) {
-        return size + width * 628 / 1000;
+        return size + width * 30 / 55;
     }
 
     private static int cellWidth(int size, int width) {
-        return size(size, width) * 1732 / 1000;
+        int tmp = (size(size, width) * 433 / 250);
+        return tmp + tmp % 2;
+    }
+
+    private static int widthOffsetLeft(int width) {
+        return width / 2;
+    }
+
+    private static int widthOffsetRight(int width) {
+        return width / 2 + width % 2;
+    }
+
+    private static int heightOffset(int width) {
+        return width / 2 + width % 2;
     }
 
     private static int cellHeight(int size, int width) {
@@ -24,9 +37,9 @@ class GridInfo {
      * @param width
      * @return              grid cellWidth in pixels
      */
-    static int getWidth(int gridWidth, int size, int width) {
-        return cellWidth(size, width) * (gridWidth + 1)
-                + width;
+    static int getWidth(int gridWidth, int gridHeight, int size, int width) {
+        return (cellWidth(size, width) / 2) * (gridWidth * 2 + ((gridHeight > 1) ? 1 : 0))
+                + widthOffsetLeft(width) + widthOffsetRight(width);
     }
 
     /**
@@ -36,9 +49,15 @@ class GridInfo {
      * @return              grid cellHeight in pixels
      */
     static int getHeight(int gridHeight, int size, int width) {
-        return (size(size, width) * 3 / 2 + size(size, width) % 2) * (gridHeight + 1)
-                + width;
-    }
+        int height = cellHeight(size, width) + heightOffset(width) * 2;
+        if (gridHeight % 2 == 0)
+            height += size(size, width) + size(size, width) / 2;
+
+        if (gridHeight <= 2)
+            return height;
+
+        return height + (cellHeight(size, width) + size(size, width)) * ((gridHeight - 1) / 2);
+}
 
     /**
      * @param gridX
@@ -53,17 +72,17 @@ class GridInfo {
             points[0] = new Point(cellWidth(size, width) / 2, 0);
             points[1] = new Point(0, size(size, width) / 2);
         } else {
-            points[0] = new Point(cellWidth(size, width), size(size, width) * 3 / 2);
+            points[0] = new Point(cellWidth(size, width), size(size, width) + size(size, width) / 2);
             points[1] = new Point(cellWidth(size, width) / 2, cellHeight(size, width));
         }
         points[0].x += cellWidth(size, width) * gridX
-                + width;
+                + widthOffsetLeft(width);
         points[0].y += (cellHeight(size, width) + size(size, width)) * (gridY >= 0 ? gridY / 2 : (gridY - 1) / 2)
-                + width;
+                + heightOffset(width);
         points[1].x += cellWidth(size, width) * gridX
-                + width;
+                + widthOffsetLeft(width);
         points[1].y += (cellHeight(size, width) + size(size, width)) * (gridY >= 0 ? gridY / 2 : (gridY - 1) / 2)
-                + width;
+                + heightOffset(width);
 
         points[2] = new Point(points[1].x, points[1].y + size(size, width));
         points[3] = new Point(points[0].x, points[0].y + cellHeight(size, width));
@@ -85,12 +104,12 @@ class GridInfo {
         if (gridY % 2 == 0)
             center = new Point(cellWidth(size, width) / 2, 0);
         else
-            center = new Point(cellWidth(size, width), size(size, width) * 3 / 2);
+            center = new Point(cellWidth(size, width), size(size, width) + size(size, width) / 2);
 
         center.x += cellWidth(size, width) * gridX
-                + width;
+                + widthOffsetLeft(width);
         center.y += (cellHeight(size, width) + size(size, width)) * (gridY >= 0 ? gridY / 2 : (gridY - 1) / 2) + size(size, width)
-                + width;
+                + heightOffset(width);
 
         return center;
     }
