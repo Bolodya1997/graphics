@@ -322,13 +322,17 @@ public class MainFrame extends JFrame {
             if (option == JOptionPane.CANCEL_OPTION)
                 return;
 
-            if (option == JOptionPane.YES_OPTION)
-                saveAction();
+            if (option == JOptionPane.YES_OPTION) {
+                if (!saveAction())
+                    return;
+            }
         }   //  TODO: fix copy + pasted text D:
 
         saver.reset();
         setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
+        if (XORRadioMenuItem.isSelected())
+            XORRadioMenuItem.doClick();
         if (impactRadioMenuItem.isSelected())
             impactRadioMenuItem.doClick();
         if (colorsRadioMenuItem.isSelected())
@@ -347,8 +351,10 @@ public class MainFrame extends JFrame {
             if (option == JOptionPane.CANCEL_OPTION)
                 return;
 
-            if (option == JOptionPane.YES_OPTION)
-                saveAction();
+            if (option == JOptionPane.YES_OPTION) {
+                if (!saveAction())
+                    return;
+            }
         }   //  TODO: fix copy + pasted text D:
 
         InputStream stream;
@@ -370,6 +376,8 @@ public class MainFrame extends JFrame {
             return;
         }
 
+        if (XORRadioMenuItem.isSelected())
+            XORRadioMenuItem.doClick();
         if (impactRadioMenuItem.isSelected())
             impactRadioMenuItem.doClick();
         if (colorsRadioMenuItem.isSelected())
@@ -378,38 +386,40 @@ public class MainFrame extends JFrame {
         gameScrollPane.repaint();
     }
 
-    private void saveAsAction() {
+    private boolean saveAsAction() {
         OutputStream stream;
         try {
             stream = saver.saveAs();
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(this, "Error on saving", "Error",
                     JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
 
         if (stream == null)
-            return;
+            return false;
         setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
         gamePanel.printToStream(stream);
+        return true;
     }
 
-    private void saveAction() {
+    private boolean saveAction() {
         OutputStream stream;
         try {
             stream = saver.save();
         } catch (FileNotFoundException e) {
             JOptionPane.showMessageDialog(this, "Error on saving", "Error",
                     JOptionPane.ERROR_MESSAGE);
-            return;
+            return false;
         }
 
         if (stream == null)
-            return;
+            return false;
         setTitle(String.format("%s - %s", saver.getName(), TITLE));
 
         gamePanel.printToStream(stream);
+        return true;
     }
 
     private void exitAction() {
@@ -420,8 +430,10 @@ public class MainFrame extends JFrame {
             if (option == JOptionPane.CANCEL_OPTION)
                 return;
 
-            if (option == JOptionPane.YES_OPTION)
-                saveAction();
+            if (option == JOptionPane.YES_OPTION) {
+                if (!saveAction())
+                    return;
+            }
         }   //  TODO: fix copy + pasted text D:
 
         System.exit(0);
