@@ -6,8 +6,13 @@ import ru.nsu.fit.g14203.popov.life.util.MutableInteger;
 
 import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.stream.Stream;
 
 class SettingsDialog extends JDialog {
 
@@ -130,22 +135,16 @@ class SettingsDialog extends JDialog {
         gridBagLayout.addLayoutComponent(nameLabel, constraints);
 
 //        ------   Value   ------
-        JTextField valueTextField = new JTextField(Integer.toString(value.getValue()));
-        valueTextField.addKeyListener(new KeyAdapter() {
+        JTextField valueTextField = new JTextField();
+        valueTextField.setDocument(new PlainDocument() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                String next = valueTextField.getText() + e.getKeyChar();
-
-                try {
-                    Integer.decode(next);
-                } catch (NumberFormatException exc) {
-                    e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
-                }
-
-                if (next.length() > 3)
-                    e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
+            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+                if (getLength() + str.length() > 3)
+                    return;
+                super.insertString(offs, str, a);
             }
         });
+        valueTextField.setText(Integer.toString(value.getValue()));
 
         fieldPropertiesPanel.add(valueTextField);
         ++constraints.gridx;
@@ -160,14 +159,21 @@ class SettingsDialog extends JDialog {
 
 //        ------   link   ------
         Runnable valueChangeAction = () -> {
-            int v = Integer.decode(valueTextField.getText());
+            int v;
+            try {
+                v = Integer.decode(valueTextField.getText());
+            } catch (Exception e) {
+                valueTextField.setText(Integer.toString(value.getValue()));
+                return;
+            }
+
             v = (v < min) ? min :
                     (max < v) ? max : v;
 
-            valueTextField.setText(Integer.toString(v));
-            slider.setValue(v);
-
             value.setValue(v);
+            valueTextField.setText(Integer.toString(v));
+
+            slider.setValue(v);
         };
 
         valueTextField.addFocusListener(new FocusAdapter() {
@@ -198,40 +204,42 @@ class SettingsDialog extends JDialog {
         gridBagLayout.addLayoutComponent(nameLabel, constraints);
 
 //        ------   Value   ------
-        JTextField valueTextField = new JTextField(Double.toString(value.getValue()));
-        valueTextField.addKeyListener(new KeyAdapter() {
+        JTextField valueTextField = new JTextField();
+        valueTextField.setDocument(new PlainDocument() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                String next = valueTextField.getText() + e.getKeyChar();
-
-                try {
-                    Double.parseDouble(next);
-                } catch (NumberFormatException exc) {
-                    e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
-                }
-
-                if (next.length() > 4)
-                    e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
+            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+                if (str.startsWith(".") && offs == 0)
+                    return;
+                if (getLength() + str.length() > 3)
+                    return;
+                super.insertString(offs, str, a);
             }
         });
+        valueTextField.setText(Double.toString(value.getValue()));
 
         Runnable valueChangeAction = () -> {
             double old = value.getValue();
-            value.setValue(Double.parseDouble(valueTextField.getText()));
 
-            if (Double.isNaN(value.getValue()) || Double.isInfinite(value.getValue())) {
+            double v;
+            try {
+                v = Double.parseDouble(valueTextField.getText());
+            } catch (Exception e) {
                 valueTextField.setText(Double.toString(old));
-                value.setValue(old);
                 return;
             }
 
-            if (value.getValue() >= 10) {
+            if (Double.isNaN(v) || Double.isInfinite(v)) {
                 valueTextField.setText(Double.toString(old));
-                value.setValue(old);
                 return;
             }
 
-            valueTextField.setText(Double.toString(value.getValue()));
+            if (v >= 10) {
+                valueTextField.setText(Double.toString(old));
+                return;
+            }
+
+            value.setValue(v);
+            valueTextField.setText(Double.toString(v));
         };
 
         valueTextField.addFocusListener(new FocusAdapter() {
@@ -261,47 +269,50 @@ class SettingsDialog extends JDialog {
 
 //        ------   Value   ------
         JTextField valueTextField = new JTextField(Double.toString(value.getValue()));
-        valueTextField.addKeyListener(new KeyAdapter() {
+        valueTextField.setDocument(new PlainDocument() {
             @Override
-            public void keyTyped(KeyEvent e) {
-                String next = valueTextField.getText() + e.getKeyChar();
-
-                try {
-                    Double.parseDouble(next);
-                } catch (NumberFormatException exc) {
-                    e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
-                }
-
-                if (next.length() > 4)
-                    e.setKeyChar(KeyEvent.CHAR_UNDEFINED);
+            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+                if (str.startsWith(".") && offs == 0)
+                    return;
+                if (getLength() + str.length() > 3)
+                    return;
+                super.insertString(offs, str, a);
             }
         });
+        valueTextField.setText(Double.toString(value.getValue()));
 
         Runnable valueChangeAction = () -> {
             double old = value.getValue();
-            value.setValue(Double.parseDouble(valueTextField.getText()));
 
-            if (Double.isNaN(value.getValue()) || Double.isInfinite(value.getValue())) {
+            double v;
+            try {
+                v = Double.parseDouble(valueTextField.getText());
+            } catch (Exception e) {
                 valueTextField.setText(Double.toString(old));
-                value.setValue(old);
                 return;
             }
 
-            if (value.getValue() >= 10) {
+            if (Double.isNaN(v) || Double.isInfinite(v)) {
                 valueTextField.setText(Double.toString(old));
-                value.setValue(old);
                 return;
             }
 
+            if (v >= 10) {
+                valueTextField.setText(Double.toString(old));
+                return;
+            }
+
+            value.setValue(v);
             if (settings.lifeBegin.getValue() < 0
                     || settings.birthBegin.getValue() < settings.lifeBegin.getValue()
                     || settings.birthEnd.getValue() < settings.birthBegin.getValue()
                     || settings.lifeEnd.getValue() < settings.birthEnd.getValue()) {
-                valueTextField.setText(Double.toString(old));
                 value.setValue(old);
+                valueTextField.setText(Double.toString(old));
+                return;
             }
 
-            valueTextField.setText(Double.toString(value.getValue()));
+            valueTextField.setText(Double.toString(v));
         };
 
         valueTextField.addFocusListener(new FocusAdapter() {
