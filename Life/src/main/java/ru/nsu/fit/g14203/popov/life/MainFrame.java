@@ -181,6 +181,7 @@ public class MainFrame extends JFrame {
 
 //        ------   game panel   ------
         gameScrollPane.getVerticalScrollBar().setUnitIncrement(10);
+        gameScrollPane.setBackground(Color.WHITE);
         add(gameScrollPane);
         gridBagLayout.addLayoutComponent(gameScrollPane, new GridBagConstraints(0, 1, 1,
                 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH,
