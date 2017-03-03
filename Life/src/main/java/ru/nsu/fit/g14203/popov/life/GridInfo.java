@@ -7,7 +7,7 @@ class GridInfo {
     private static final Point badPoint = new Point(-1, -1);
 
     private static int size(int size, int width) {
-        return size + width * 30 / 55;
+        return size + width * 30 / 51;
     }
 
     private static int cellWidth(int size, int width) {
