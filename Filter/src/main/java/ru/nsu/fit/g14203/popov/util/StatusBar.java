@@ -16,7 +16,7 @@ public class StatusBar extends JPanel {
 
     private Map<JComponent, String> hints = new HashMap<>();
 
-    public StatusBar() {
+    StatusBar() {
         GridBagLayout gridBagLayout = new GridBagLayout();
         setLayout(gridBagLayout);
 
@@ -41,11 +41,11 @@ public class StatusBar extends JPanel {
         gridBagLayout.addLayoutComponent(scrollLabel, constraints);
     }
 
-    public void addComponent(JComponent component, String text) {
+    void addComponent(JComponent component, String text) {
         hints.put(component, text);
     }
 
-    public void setActiveComponent(JComponent component) {
+    void setActiveComponent(JComponent component) {
         if (component == null)
             hintLabel.setText("Ready");
         else

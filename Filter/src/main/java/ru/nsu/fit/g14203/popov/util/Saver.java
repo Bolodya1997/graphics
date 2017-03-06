@@ -3,25 +3,30 @@ package ru.nsu.fit.g14203.popov.util;
 import javax.swing.*;
 import java.io.*;
 
-class Saver {
+public class Saver {
 
-    private static final String HOME_DIRECTORY = "FIT_14203_Popov_Vladimir_Life_Data";
     private static final String DEFAULT_NAME = "Untitled";
+
+    private String homeDirectory;
 
     private String name = DEFAULT_NAME;
     private String path = null;
 
-    String getName() {
+    public Saver(String homeDirectory) {
+        this.homeDirectory = homeDirectory;
+    }
+
+    public String getName() {
         return name;
     }
 
-    void reset() {
+    public void reset() {
         name = DEFAULT_NAME;
         path = null;
     }
 
-    InputStream open() throws FileNotFoundException {
-        JFileChooser chooser = new JFileChooser(HOME_DIRECTORY);
+    public InputStream open() throws FileNotFoundException {
+        JFileChooser chooser = new JFileChooser(homeDirectory);
         if (chooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
             return null;
 
@@ -32,15 +37,15 @@ class Saver {
         return new FileInputStream(file);
     }
 
-    OutputStream save() throws FileNotFoundException {
+    public OutputStream save() throws FileNotFoundException {
         if (path == null)
             return saveAs();
 
         return new FileOutputStream(path);
     }
 
-    OutputStream saveAs() throws FileNotFoundException {
-        JFileChooser chooser = new JFileChooser(HOME_DIRECTORY);
+    public OutputStream saveAs() throws FileNotFoundException {
+        JFileChooser chooser = new JFileChooser(homeDirectory);
         if (chooser.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
             return null;
 

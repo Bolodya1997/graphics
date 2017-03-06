@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-public class MainFrame extends JFrame {
+public class DefaultMainFrame extends JFrame {
 
     private static final int DEFAULT_WIDTH  = 800;
     private static final int DEFAULT_HEIGHT = 600;
@@ -26,10 +26,13 @@ public class MainFrame extends JFrame {
     private StatusBar statusBar = new StatusBar();
 
     protected JScrollPane scrollPane;
+    protected JPanel mainPanel;
 
-    public MainFrame(String title, JPanel mainPanel) {
+    public DefaultMainFrame(String title, JPanel mainPanel) {
         setTitle(title);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        this.mainPanel = mainPanel;
 
 //        ------   size   ------
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
@@ -52,7 +55,7 @@ public class MainFrame extends JFrame {
         add(statusBar, BorderLayout.SOUTH);
     }
 
-    public MainFrame(String title, Runnable exitAction, JPanel mainPanel) {
+    public DefaultMainFrame(String title, Runnable exitAction, JPanel mainPanel) {
         this(title, mainPanel);
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
