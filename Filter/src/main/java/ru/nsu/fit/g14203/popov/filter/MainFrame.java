@@ -1,6 +1,7 @@
 package ru.nsu.fit.g14203.popov.filter;
 
 import ru.nsu.fit.g14203.popov.util.DefaultMainFrame;
+import ru.nsu.fit.g14203.popov.util.JToggleMenuItem;
 import ru.nsu.fit.g14203.popov.util.Saver;
 
 import javax.swing.*;
@@ -28,6 +29,7 @@ public class MainFrame extends DefaultMainFrame {
         ImageIcon openIcon = new ImageIcon(MainFrame.class.getResource("Open.png"));
         ImageIcon saveAsIcon = new ImageIcon(MainFrame.class.getResource("Save_as.png"));
         ImageIcon exitIcon = new ImageIcon(MainFrame.class.getResource("Exit.png"));
+        ImageIcon selectIcon = new ImageIcon(MainFrame.class.getResource("Select.png"));
 
 //        ------   menus   ------
 //              ------   File   ------
@@ -46,6 +48,12 @@ public class MainFrame extends DefaultMainFrame {
 //                      ------   Exit   ------
         addMenuItem(fileMenu, "Exit", exitIcon, KeyEvent.VK_E,
                 "Quit Filter", NO_ACTION);
+//              ------   View   ------
+        JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
+//                      ------   Select   ------
+        JToggleMenuItem selectToggleMenuItem = addToggleMenuItem(viewMenu, "Select", selectIcon,
+                KeyEvent.VK_S, "Enable selection", "Disable selection",
+                NO_ACTION, filterPanel.getSelectEnable());
 
 //        ------   tool bars   ------
 //              ------   TOP   ------
@@ -58,6 +66,8 @@ public class MainFrame extends DefaultMainFrame {
         addToolBarButton(topToolBar, saveAsMenuItem);
 //                      ------      ------
         topToolBar.addSeparator();
+//                      ------   Select   ------
+        addToolBarToggleButton(topToolBar, selectToggleMenuItem);
 
 //        ------   end of init   ------
         setVisible(true);

@@ -1,6 +1,6 @@
 package ru.nsu.fit.g14203.popov.filter;
 
-import ru.nsu.fit.g14203.popov.filter.graphics.MyPainter;
+import ru.nsu.fit.g14203.popov.util.State;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -15,8 +15,10 @@ class FilterPanel extends JPanel {
     private final static int AREA_HEIGHT     = 350;
     private final static Dimension AREA_SIZE = new Dimension(AREA_WIDTH, AREA_HEIGHT);
 
-    private AreaA areaA = new AreaA();
-    private JLabel areaB = new JLabel();
+    private State selectEnable = new State(false);
+
+    private AreaA areaA;
+    private Area areaB;
     private JLabel areaC = new JLabel();
 
     FilterPanel() {
@@ -28,12 +30,16 @@ class FilterPanel extends JPanel {
                 GridBagConstraints.NONE, new Insets(10, 10, 10, 0), 0, 0);
 
 //        ------   areaA   ------
+        areaA = new AreaA(AREA_WIDTH, selectEnable);
         initArea(areaA);
 
         add(areaA, constraints);
 
 //        ------   areaB   ------
+        areaB = new Area();
         initArea(areaB);
+
+        areaA.addImageObserver((o, arg) -> areaB.setImage((BufferedImage) arg));
 
         add(areaB, constraints);
 
@@ -63,5 +69,11 @@ class FilterPanel extends JPanel {
 
     void openImage(InputStream stream) throws IOException {
         areaA.setImage(ImageIO.read(stream));
+    }
+
+//    ------   select   ------
+
+    State getSelectEnable() {
+        return selectEnable;
     }
 }

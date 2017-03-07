@@ -203,6 +203,34 @@ public class DefaultMainFrame extends JFrame {
                                  selected, null);
     }
 
+    protected JToggleMenuItem addToggleMenuItem(JMenu menu,
+                                                String name, Icon icon, int mnemonic,
+                                                String defaultStatusBarText, String selectedStatusBarText,
+                                                Runnable action,
+                                                State selected) {
+        return addToggleMenuItem(menu,
+                                 name, icon, mnemonic,
+                                 name, icon, mnemonic,
+                                 defaultStatusBarText, selectedStatusBarText,
+                                 action, action,
+                                 selected);
+    }
+
+    protected JToggleMenuItem addToggleMenuItem(JMenu menu,
+                                                String name, Icon icon, int mnemonic,
+                                                String defaultStatusBarText, String selectedStatusBarText,
+                                                Runnable action,
+                                                State selected, State enable) {
+        JToggleMenuItem result = addToggleMenuItem(menu,
+                                                   name, icon, mnemonic,
+                                                   defaultStatusBarText, selectedStatusBarText,
+                                                   action,
+                                                   selected);
+        setEnableState(result, enable);
+
+        return result;
+    }
+
 //    ------   toolbars   ------
 
     protected JToolBar addToolbar(String side) {

@@ -2,7 +2,7 @@ package ru.nsu.fit.g14203.popov.util;
 
 import javax.swing.*;
 
-class JToggleMenuItem extends JRadioButtonMenuItem {
+public class JToggleMenuItem extends JRadioButtonMenuItem {
 
     private String defaultText;
     private Icon defaultIcon;
