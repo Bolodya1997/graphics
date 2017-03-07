@@ -251,7 +251,7 @@ public class DefaultMainFrame extends JFrame {
         button.addActionListener(menuItem.getActionListeners()[0]);
 
         if (enableMap.containsKey(menuItem))
-            setEnableState(menuItem, enableMap.get(menuItem));
+            setEnableState(button, enableMap.get(menuItem));
 
         toolBar.add(button);
     }

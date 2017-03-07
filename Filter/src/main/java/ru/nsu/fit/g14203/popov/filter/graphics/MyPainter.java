@@ -21,11 +21,11 @@ public class MyPainter {
         if ((double) image.getWidth() / width > (double) image.getHeight() / height) {
             colors = countXColors(image, width, height);
             result = new BufferedImage(width, image.getHeight() * width / image.getWidth(),
-                    BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage.TYPE_INT_RGB);
         } else {
             colors = countYColors(image, width, height);
             result = new BufferedImage(image.getWidth() * height / image.getHeight(), height,
-                    BufferedImage.TYPE_INT_ARGB);
+                    BufferedImage.TYPE_INT_RGB);
         }
 
         for (int x = 0; x < result.getWidth(); x++) {
@@ -34,10 +34,9 @@ public class MyPainter {
                 if (count == 0)
                     continue;
 
-                int RGB = colors[x][y][0] / count * 0x00010000
-                        + colors[x][y][1] / count * 0x00000100
-                        + colors[x][y][2] / count
-                        + 0xFF000000;
+                int RGB = colors[x][y][0] / count * 0x010000
+                        + colors[x][y][1] / count * 0x000100
+                        + colors[x][y][2] / count;
                 result.setRGB(x, y, RGB);
             }
         }
@@ -52,9 +51,9 @@ public class MyPainter {
             for (int oldY = 0; oldY < image.getHeight(); oldY++) {
                 int x = oldX * width / image.getWidth();
                 int y = Integer.min(oldY * width / image.getWidth(), height - 1);
-                colors[x][y][0] += (image.getRGB(oldX, oldY) & 0x00FF0000) / 0x00010000;
-                colors[x][y][1] += (image.getRGB(oldX, oldY) & 0x0000FF00) / 0x00000100;
-                colors[x][y][2] += (image.getRGB(oldX, oldY) & 0x000000FF);
+                colors[x][y][0] += (image.getRGB(oldX, oldY) & 0xFF0000) / 0x010000;
+                colors[x][y][1] += (image.getRGB(oldX, oldY) & 0x00FF00) / 0x000100;
+                colors[x][y][2] += (image.getRGB(oldX, oldY) & 0x0000FF);
                 colors[x][y][3] += 1;
             }
         }
@@ -69,9 +68,9 @@ public class MyPainter {
             for (int oldY = 0; oldY < image.getHeight(); oldY++) {
                 int x = Integer.min(oldX * height / image.getHeight(), width - 1);
                 int y = oldY * height / image.getHeight();
-                colors[x][y][0] += (image.getRGB(oldX, oldY) & 0x00FF0000) / 0x00010000;
-                colors[x][y][1] += (image.getRGB(oldX, oldY) & 0x0000FF00) / 0x00000100;
-                colors[x][y][2] += (image.getRGB(oldX, oldY) & 0x000000FF);
+                colors[x][y][0] += (image.getRGB(oldX, oldY) & 0xFF0000) / 0x010000;
+                colors[x][y][1] += (image.getRGB(oldX, oldY) & 0x00FF00) / 0x000100;
+                colors[x][y][2] += (image.getRGB(oldX, oldY) & 0x0000FF);
                 colors[x][y][3] += 1;
             }
         }

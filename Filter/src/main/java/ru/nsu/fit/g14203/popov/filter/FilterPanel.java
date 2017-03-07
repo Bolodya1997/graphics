@@ -1,5 +1,6 @@
 package ru.nsu.fit.g14203.popov.filter;
 
+import ru.nsu.fit.g14203.popov.filter.graphics.SimpleFilter;
 import ru.nsu.fit.g14203.popov.util.State;
 
 import javax.imageio.ImageIO;
@@ -16,10 +17,12 @@ class FilterPanel extends JPanel {
     private final static Dimension AREA_SIZE = new Dimension(AREA_WIDTH, AREA_HEIGHT);
 
     private State selectEnable = new State(false);
+    private State areaBFilled = new State(false);
+    private State areaCFilled = new State(false);
 
     private AreaA areaA;
     private Area areaB;
-    private JLabel areaC = new JLabel();
+    private Area areaC;
 
     FilterPanel() {
         GridBagLayout gridBagLayout = new GridBagLayout();
@@ -36,7 +39,7 @@ class FilterPanel extends JPanel {
         add(areaA, constraints);
 
 //        ------   areaB   ------
-        areaB = new Area();
+        areaB = new Area(areaBFilled);
         initArea(areaB);
 
         areaA.addImageObserver((o, arg) -> areaB.setImage((BufferedImage) arg));
@@ -44,6 +47,7 @@ class FilterPanel extends JPanel {
         add(areaB, constraints);
 
 //        ------   areaC   ------
+        areaC = new Area(areaCFilled);
         initArea(areaC);
 
         constraints.insets.right = 10;
@@ -65,15 +69,36 @@ class FilterPanel extends JPanel {
         area.setBorder(BorderFactory.createDashedBorder(Color.DARK_GRAY, 10, 5));
     }
 
-//    ------   open   ------
+//    ------   states   ------
+
+    State getSelectEnable() {
+        return selectEnable;
+    }
+
+    State getAreaBFilled() {
+        return areaBFilled;
+    }
+
+    State getAreaCFilled() {
+        return areaCFilled;
+    }
+
+//    ------   actions   ------
 
     void openImage(InputStream stream) throws IOException {
         areaA.setImage(ImageIO.read(stream));
     }
 
-//    ------   select   ------
+    void copyBC() {
+        areaC.setImage(areaB.getImage());
+    }
 
-    State getSelectEnable() {
-        return selectEnable;
+    void copyCB() {
+        areaB.setImage(areaC.getImage());
+    }
+
+    void useFilter(SimpleFilter filter) {
+        BufferedImage image = areaB.getImage();
+        areaC.setImage(filter.apply(image));
     }
 }
