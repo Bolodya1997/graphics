@@ -17,6 +17,18 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>ru.nsu.fit.g14203.popov.Main</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>filter</finalName>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
