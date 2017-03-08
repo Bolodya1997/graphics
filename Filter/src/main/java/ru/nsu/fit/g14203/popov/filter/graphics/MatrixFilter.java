@@ -41,9 +41,22 @@ abstract class MatrixFilter implements SimpleFilter {
                     }
                 }
 
-                int RGB = ((R / W) & 0xFF) * 0x010000
-                        + ((G / W) & 0xFF) * 0x000100
-                        + ((B / W) & 0xFF);
+                R /= W;
+                R = (R < 0) ? 0
+                            : (R > 0xFF) ? 0xFF
+                                         : R;
+                G /= W;
+                G = (G < 0) ? 0
+                            : (G > 0xFF) ? 0xFF
+                                         : G;
+                B /= W;
+                B = (B < 0) ? 0
+                            : (B > 0xFF) ? 0xFF
+                                         : B;
+
+                int RGB = R * 0x010000
+                        + G * 0x000100
+                        + B;
                 result.setRGB(x, y, RGB);
             }
         }
