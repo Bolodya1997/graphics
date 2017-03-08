@@ -4,15 +4,17 @@ import java.awt.image.BufferedImage;
 
 abstract class MatrixFilter implements SimpleFilter {
 
-    abstract int[][] getK();
-    abstract int getW();
+    abstract int[][] getMatrix();
+    abstract int getDivider();
+    abstract int getOffset();
 
     @Override
     public BufferedImage apply(BufferedImage image) {
         BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
 
-        int[][] K = getK();
-        int W = getW();
+        int[][] matrix = getMatrix();
+        int divider = getDivider();
+        int offset = getOffset();
 
         int[][] window = new int[3][3];
         for (int x = 0; x < image.getWidth(); x++) {
@@ -35,21 +37,21 @@ abstract class MatrixFilter implements SimpleFilter {
                 int B = 0;
                 for (int i = 0; i < 3; i++) {
                     for (int k = 0; k < 3; k++) {
-                        R += (window[i][k] & 0xFF0000) / 0x010000 * K[i][k];
-                        G += (window[i][k] & 0x00FF00) / 0x000100 * K[i][k];
-                        B += (window[i][k] & 0x0000FF) * K[i][k];
+                        R += (window[i][k] & 0xFF0000) / 0x010000 * matrix[i][k];
+                        G += (window[i][k] & 0x00FF00) / 0x000100 * matrix[i][k];
+                        B += (window[i][k] & 0x0000FF) * matrix[i][k];
                     }
                 }
 
-                R /= W;
+                R = R / divider + offset;
                 R = (R < 0) ? 0
                             : (R > 0xFF) ? 0xFF
                                          : R;
-                G /= W;
+                G = G / divider + offset;
                 G = (G < 0) ? 0
                             : (G > 0xFF) ? 0xFF
                                          : G;
-                B /= W;
+                B = B / divider + offset;
                 B = (B < 0) ? 0
                             : (B > 0xFF) ? 0xFF
                                          : B;

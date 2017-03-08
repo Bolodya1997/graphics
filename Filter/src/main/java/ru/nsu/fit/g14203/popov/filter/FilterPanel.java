@@ -97,8 +97,10 @@ class FilterPanel extends JPanel {
         areaB.setImage(areaC.getImage());
     }
 
-    void useFilter(SimpleFilter filter) {
+    void useFilters(SimpleFilter ...filters) {
         BufferedImage image = areaB.getImage();
-        areaC.setImage(filter.apply(image));
+        for (SimpleFilter filter : filters)
+            image = filter.apply(image);
+        areaC.setImage(image);
     }
 }

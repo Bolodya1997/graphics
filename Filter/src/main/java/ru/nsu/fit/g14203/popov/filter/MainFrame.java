@@ -21,6 +21,7 @@ public class MainFrame extends DefaultMainFrame {
     private final static SimpleFilter MAGNIFY_FILTER = new MagnifyFilter();
     private final static SimpleFilter BLUR_FILTER = new BlurFilter();
     private final static SimpleFilter SHARPEN_FILTER = new SharpenFilter();
+    private final static SimpleFilter EMBOSS_FILTER = new EmbossFilter();
 
     private Saver saver = new Saver("FIT_14203_Popov_Vladimir_Filter_Data");
 
@@ -44,6 +45,7 @@ public class MainFrame extends DefaultMainFrame {
         ImageIcon magnifyIcon = new ImageIcon(MainFrame.class.getResource("Magnify.png"));
         ImageIcon blurIcon = new ImageIcon(MainFrame.class.getResource("Blur.png"));
         ImageIcon sharpenIcon = new ImageIcon(MainFrame.class.getResource("Sharpen.png"));
+        ImageIcon embossIcon = new ImageIcon(MainFrame.class.getResource("Emboss.png"));
 
 //        ------   menus   ------
 //              ------   File   ------
@@ -80,23 +82,27 @@ public class MainFrame extends DefaultMainFrame {
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
 //                      ------   Grayscale   ------
         JMenuItem grayscaleMenuItem = addMenuItem(editMenu, "Grayscale", grayscaleIcon, KeyEvent.VK_G,
-                "Use the grayscale filter", () -> filterPanel.useFilter(GRAYSCALE_FILTER),
+                "Use the grayscale filter", () -> filterPanel.useFilters(GRAYSCALE_FILTER),
                 filterPanel.getAreaBFilled());
 //                      ------   Invert   ------
         JMenuItem invertMenuItem = addMenuItem(editMenu, "Invert", invertIcon, KeyEvent.VK_I,
-                "Use the invert filter", () -> filterPanel.useFilter(INVERT_FILTER),
+                "Use the invert filter", () -> filterPanel.useFilters(INVERT_FILTER),
                 filterPanel.getAreaBFilled());
 //                      ------   Invert   ------
         JMenuItem magnifyMenuItem = addMenuItem(editMenu, "Magnify", magnifyIcon, KeyEvent.VK_M,
-                "Magnify the image", () -> filterPanel.useFilter(MAGNIFY_FILTER),
+                "Magnify the image", () -> filterPanel.useFilters(MAGNIFY_FILTER),
                 filterPanel.getAreaBFilled());
 //                      ------   Blur   ------
         JMenuItem blurMenuItem = addMenuItem(editMenu, "Blur", blurIcon, KeyEvent.VK_B,
-                "Use the blur filter", () -> filterPanel.useFilter(BLUR_FILTER),
+                "Use the blur filter", () -> filterPanel.useFilters(BLUR_FILTER),
                 filterPanel.getAreaBFilled());
 //                      ------   Sharpen   ------
         JMenuItem sharpenMenuItem = addMenuItem(editMenu, "Sharpen", sharpenIcon, KeyEvent.VK_S,
-                "Use the sharpen filter", () -> filterPanel.useFilter(SHARPEN_FILTER),
+                "Use the sharpen filter", () -> filterPanel.useFilters(SHARPEN_FILTER),
+                filterPanel.getAreaBFilled());
+//                      ------   Emboss   ------
+        JMenuItem embossMenuItem = addMenuItem(editMenu, "Emboss", embossIcon, KeyEvent.VK_E,
+                "Use the emboss filter", () -> filterPanel.useFilters(EMBOSS_FILTER, GRAYSCALE_FILTER),
                 filterPanel.getAreaBFilled());
 
 //        ------   toolbars   ------
@@ -128,6 +134,8 @@ public class MainFrame extends DefaultMainFrame {
         addToolBarButton(topToolBar, blurMenuItem);
 //                      ------   Sharpen   ------
         addToolBarButton(topToolBar, sharpenMenuItem);
+//                      ------   Emboss   ------
+        addToolBarButton(topToolBar, embossMenuItem);
 
 //        ------   end of init   ------
         setVisible(true);
