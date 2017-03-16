@@ -2,7 +2,7 @@ package ru.nsu.fit.g14203.popov.filter.graphics;
 
 import java.awt.image.BufferedImage;
 
-public class InvertFilter implements SimpleFilter {
+public class InvertFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {

@@ -1,9 +1,9 @@
 package ru.nsu.fit.g14203.popov.filter.graphics;
 
-public class EmbossFilter extends MatrixFilter {
+public class EmbossFilter extends AreaFilter {
 
     @Override
-    int[][] getMatrix() {
+    int[][] getKernel() {
         return new int[][]{ {  0, -1,  0 },
                             { -1,  0,  1 },
                             {  0,  1,  0 } };

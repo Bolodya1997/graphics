@@ -23,12 +23,16 @@ class Area extends JLabel {
 
     void setImage(BufferedImage image) {
         this.image = image;
+
+        Icon icon;
         if (image == null) {
             filled.setState(false);
-            return;
+            icon = null;
+        } else {
+            filled.setState(true);
+            icon = new ImageIcon(image);
         }
 
-        setIcon(new ImageIcon(image));
-        filled.setState(true);
+        setIcon(icon);
     }
 }

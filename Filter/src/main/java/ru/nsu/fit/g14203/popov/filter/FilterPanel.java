@@ -1,6 +1,6 @@
 package ru.nsu.fit.g14203.popov.filter;
 
-import ru.nsu.fit.g14203.popov.filter.graphics.SimpleFilter;
+import ru.nsu.fit.g14203.popov.filter.graphics.Filter;
 import ru.nsu.fit.g14203.popov.util.State;
 
 import javax.imageio.ImageIO;
@@ -14,9 +14,10 @@ class FilterPanel extends JPanel {
 
     private final static int AREA_WIDTH      = 350;
     private final static int AREA_HEIGHT     = 350;
-    private final static Dimension AREA_SIZE = new Dimension(AREA_WIDTH, AREA_HEIGHT);
+    private final static Dimension AREA_SIZE = new Dimension(AREA_WIDTH + 2, AREA_HEIGHT + 2);
 
     private State selectEnable = new State(false);
+    private State areaAFilled = new State(false);
     private State areaBFilled = new State(false);
     private State areaCFilled = new State(false);
 
@@ -33,7 +34,7 @@ class FilterPanel extends JPanel {
                 GridBagConstraints.NONE, new Insets(10, 10, 10, 0), 0, 0);
 
 //        ------   areaA   ------
-        areaA = new AreaA(AREA_WIDTH, selectEnable);
+        areaA = new AreaA(areaAFilled, AREA_WIDTH, selectEnable);
         initArea(areaA);
 
         add(areaA, constraints);
@@ -75,6 +76,10 @@ class FilterPanel extends JPanel {
         return selectEnable;
     }
 
+    State getAreaAFilled() {
+        return areaAFilled;
+    }
+
     State getAreaBFilled() {
         return areaBFilled;
     }
@@ -84,6 +89,12 @@ class FilterPanel extends JPanel {
     }
 
 //    ------   actions   ------
+
+    void clear() {
+        areaA.setImage(null);
+        areaB.setImage(null);
+        areaC.setImage(null);
+    }
 
     void openImage(InputStream stream) throws IOException {
         areaA.setImage(ImageIO.read(stream));
@@ -97,10 +108,16 @@ class FilterPanel extends JPanel {
         areaB.setImage(areaC.getImage());
     }
 
-    void useFilters(SimpleFilter ...filters) {
-        BufferedImage image = areaB.getImage();
-        for (SimpleFilter filter : filters)
-            image = filter.apply(image);
-        areaC.setImage(image);
+    void useFilters(State ready, Filter...filters) {    //  TODO: replace with 1 thread pull
+        ready.setState(false);
+
+        new Thread(() -> {
+            BufferedImage image = areaB.getImage();
+            for (Filter filter : filters)
+                image = filter.apply(image);
+
+            areaC.setImage(image);
+            ready.setState(true);
+        }).start();
     }
 }

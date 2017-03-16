@@ -12,9 +12,11 @@ import java.awt.image.BufferedImage;
 import java.util.Observable;
 import java.util.Observer;
 
-class AreaA extends JLabel {
+class AreaA extends Area {
 
-    private final static Color DARK_TRANSPARENT = new Color(0, 0, 0, 127);
+    private final static Color DARK_TRANSPARENT = new Color(0, 0, 0, 0x7F);
+
+    private final static int BORDER = 1;
 
     private class Selection {
         int x;
@@ -26,22 +28,30 @@ class AreaA extends JLabel {
         void relocate(int mouseX, int mouseY) {
             active = true;
 
-            int newX = mouseX - size / 2;
+            int newX = (mouseX - BORDER) - size / 2;
             x = (newX < 0) ? 0
                            : (newX > usedWidth - size) ? usedWidth - size
                                                        : newX;
-            int newY = mouseY - size / 2;
+
+            int newY = (mouseY - BORDER) - size / 2;
             y = (newY < 0) ? 0
                            : (newY > usedHeight - size) ? usedHeight - size
                                                         : newY;
         }
 
         void paintSelection(Graphics g) {
+            g.setXORMode(DARK_TRANSPARENT);
+
+            g.fillRect(BORDER, BORDER, usedWidth, usedHeight);
+            g.fillRect(x + BORDER, y + BORDER, size, size);
+
+            g.setPaintMode();
             g.setColor(DARK_TRANSPARENT);
-            g.fillRect(0, 0, usedWidth, y);
-            g.fillRect(0, y, x, usedHeight - y);
-            g.fillRect(x + size, y, usedWidth - (x + size), usedHeight - y);
-            g.fillRect(x, y + size, size, usedHeight - (y + size));
+
+            g.fillRect(BORDER, BORDER, usedWidth, y);
+            g.fillRect(BORDER, (y + size) + BORDER, usedWidth, usedHeight - (y + size));
+            g.fillRect(BORDER, y + BORDER, x, size);
+            g.fillRect((x + size) + BORDER, y + BORDER, usedWidth - (x + size), size);
         }
     }
 
@@ -64,7 +74,9 @@ class AreaA extends JLabel {
         }
     };
 
-    AreaA(int size, State selectEnable) {
+    AreaA(State filled, int size, State selectEnable) {
+        super(filled);
+
         SIZE = size;
         this.selectEnable = selectEnable;
 
@@ -85,12 +97,6 @@ class AreaA extends JLabel {
             public void mousePressed(MouseEvent e) {
                 mouseAction(e);
             }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                selection.active = false;
-                repaint();
-            }
         });
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -103,6 +109,12 @@ class AreaA extends JLabel {
     void setImage(BufferedImage image) {
         this.image = image;
 
+        if (image == null) {
+            selectEnable.setState(false);
+            super.setImage(null);
+            return;
+        }
+
         BufferedImage usedImage = MyPainter.shrinkImage(image, SIZE, SIZE);
         usedWidth = usedImage.getWidth();
         usedHeight = usedImage.getHeight();
@@ -111,7 +123,7 @@ class AreaA extends JLabel {
                                                   : SIZE * usedHeight / image.getHeight();
         selection.active = false;
 
-        setIcon(new ImageIcon(usedImage));
+        super.setImage(usedImage);
     }
 
     void addImageObserver(Observer o) {

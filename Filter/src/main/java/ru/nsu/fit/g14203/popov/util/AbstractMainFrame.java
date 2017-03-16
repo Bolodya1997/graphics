@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
-public class DefaultMainFrame extends JFrame {
+public abstract class AbstractMainFrame extends JFrame {
 
     private static final int DEFAULT_WIDTH  = 800;
     private static final int DEFAULT_HEIGHT = 600;
@@ -26,20 +26,18 @@ public class DefaultMainFrame extends JFrame {
     private StatusBar statusBar = new StatusBar();
 
     protected JScrollPane scrollPane;
-    protected JPanel mainPanel;
 
-    public DefaultMainFrame(String title, JPanel mainPanel) {
+    protected abstract JPanel createMainPanel();
+
+    public AbstractMainFrame(String title) {
         setTitle(title);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        this.mainPanel = mainPanel;
 
 //        ------   size   ------
         setSize(DEFAULT_WIDTH, DEFAULT_HEIGHT);
 
 //        ------   location   ------
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setLocation((screenSize.width - DEFAULT_WIDTH) / 2, (screenSize.height - DEFAULT_HEIGHT) / 2);
+        setLocationRelativeTo(null);
 
 //        ------   menu   ------
         setJMenuBar(menuBar);
@@ -48,15 +46,15 @@ public class DefaultMainFrame extends JFrame {
         setLayout(new BorderLayout());
 
 //        ------   main panel   ------
-        scrollPane = new JScrollPane(mainPanel);
+        scrollPane = new JScrollPane(createMainPanel());
         add(scrollPane, BorderLayout.CENTER);
 
 //        ------   status bar   ------
         add(statusBar, BorderLayout.SOUTH);
     }
 
-    public DefaultMainFrame(String title, Runnable exitAction, JPanel mainPanel) {
-        this(title, mainPanel);
+    public AbstractMainFrame(String title, Runnable exitAction) {
+        this(title);
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
