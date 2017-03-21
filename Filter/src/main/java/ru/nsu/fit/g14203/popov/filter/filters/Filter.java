@@ -1,4 +1,4 @@
-package ru.nsu.fit.g14203.popov.filter.graphics;
+package ru.nsu.fit.g14203.popov.filter.filters;
 
 import java.awt.image.BufferedImage;
 

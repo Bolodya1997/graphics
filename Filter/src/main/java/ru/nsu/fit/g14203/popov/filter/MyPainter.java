@@ -1,8 +1,8 @@
-package ru.nsu.fit.g14203.popov.filter.graphics;
+package ru.nsu.fit.g14203.popov.filter;
 
 import java.awt.image.BufferedImage;
 
-public class MyPainter {
+class MyPainter {
 
     /**
      * Proportional shrink image to fit {@param width} x {@param height} rectangle.
@@ -12,7 +12,7 @@ public class MyPainter {
      * @param height            new maximum height
      * @return                  shrunk image
      */
-    public static BufferedImage shrinkImage(BufferedImage image, int width, int height) {
+    static BufferedImage shrinkImage(BufferedImage image, int width, int height) {
         if (image.getWidth() < width || image.getHeight() < height)
             return image;
 

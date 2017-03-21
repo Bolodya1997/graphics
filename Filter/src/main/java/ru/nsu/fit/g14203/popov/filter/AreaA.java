@@ -1,9 +1,7 @@
 package ru.nsu.fit.g14203.popov.filter;
 
-import ru.nsu.fit.g14203.popov.filter.graphics.MyPainter;
 import ru.nsu.fit.g14203.popov.util.State;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;

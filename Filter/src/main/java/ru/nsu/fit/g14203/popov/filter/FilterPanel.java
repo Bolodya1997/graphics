@@ -1,6 +1,6 @@
 package ru.nsu.fit.g14203.popov.filter;
 
-import ru.nsu.fit.g14203.popov.filter.graphics.Filter;
+import ru.nsu.fit.g14203.popov.filter.filters.Filter;
 import ru.nsu.fit.g14203.popov.util.State;
 
 import javax.imageio.ImageIO;
@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 class FilterPanel extends JPanel {
 
@@ -98,6 +99,10 @@ class FilterPanel extends JPanel {
 
     void openImage(InputStream stream) throws IOException {
         areaA.setImage(ImageIO.read(stream));
+    }
+
+    void saveImage(OutputStream stream) throws IOException {
+        ImageIO.write(areaC.getImage(), "BMP", stream);
     }
 
     void copyBC() {
