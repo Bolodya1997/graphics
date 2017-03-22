@@ -12,7 +12,7 @@ public class RotationFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = Util.copyImage(image);
         
         double __angle = (Math.PI / 180) * -angle;
 

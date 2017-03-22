@@ -10,7 +10,7 @@ abstract class AreaFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = Util.copyImage(image);
 
         int[][] kernel = getKernel();
         int divider = getDivider();

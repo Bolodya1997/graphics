@@ -2,10 +2,14 @@ package ru.nsu.fit.g14203.popov.filter;
 
 import ru.nsu.fit.g14203.popov.filter.filters.*;
 import ru.nsu.fit.g14203.popov.filter.filters.rendering.Rendering3DFilter;
-import ru.nsu.fit.g14203.popov.util.*;
+import ru.nsu.fit.g14203.popov.util.AbstractMainFrame;
+import ru.nsu.fit.g14203.popov.util.JToggleMenuItem;
+import ru.nsu.fit.g14203.popov.util.State;
+import ru.nsu.fit.g14203.popov.util.WaitingDialog;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -204,6 +208,11 @@ public class MainFrame extends AbstractMainFrame {
         JMenuItem renderMenuItem = addMenuItem(renderingMenu, "Render", renderIcon, KeyEvent.VK_R,
                 "Use the 3D rendering filter", this::renderAction,
                 RENDERING_FILTER.getConfigLoaded());
+//              ------   Help   ------
+        JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
+//                      ------   About   ------
+        addMenuItem(helpMenu, "About", aboutIcon, KeyEvent.VK_A,
+                "Show information about Filter", NO_ACTION);
 
 //        ------   toolbars   ------
 //              ------   TOP   ------
@@ -342,11 +351,13 @@ public class MainFrame extends AbstractMainFrame {
                                         int B, Consumer<Integer> setB,
                                         Filter ...filters) {
         String[] names = { "R", "G", "B" };
+        int[] min = { 2, 2, 2 };
+        int[] max = { 0xFF, 0xFF, 0xFF };
         int[] values = { R, G, B };
         Consumer[] setters = { setR, setG, setB };
 
         new Int3ValueDialog(this, "Set palette size", () -> filtersAction(filters),
-                            2, 0xFF,
+                            min, max,
                             names, values, setters);
     }
 
@@ -395,14 +406,17 @@ public class MainFrame extends AbstractMainFrame {
     }
 
     private void renderAction() {
+        Dimension size = filterPanel.getImageSize();
+
         String[] names = { "X", "Y", "Z" };
-        int[] values = { 350, 350, 350 };   //  FIXME: make based on picture size
+        int[] min = { 1, 1, 1 };
+        int[] max = { Integer.min(350, size.width), Integer.min(350, size.height), 350 };
         Consumer[] setters = { ((Consumer<Integer>) RENDERING_FILTER::setSizeX),
                                ((Consumer<Integer>) RENDERING_FILTER::setSizeY),
                                ((Consumer<Integer>) RENDERING_FILTER::setSizeZ) };
 
         new Int3ValueDialog(this, "Set step count", () -> filtersAction(RENDERING_FILTER),
-                1, 350,
-                names, values, setters);
+                min, max,
+                names, max, setters);
     }
 }

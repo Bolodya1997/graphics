@@ -1,5 +1,6 @@
 package ru.nsu.fit.g14203.popov.filter.filters;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class FSDitheringFilter implements Filter {
@@ -22,8 +23,7 @@ public class FSDitheringFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-        result.setData(image.getData());
+        BufferedImage result = Util.copyImage(image);
 
         int off[][] = { { 1, 0 }, { -1, 1 }, { 0, 1 }, { 1, 1 } };  //  { dx, dy }
         int k[] = { 7, 3, 5, 1 };

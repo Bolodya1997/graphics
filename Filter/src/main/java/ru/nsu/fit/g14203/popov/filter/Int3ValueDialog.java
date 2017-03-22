@@ -10,39 +10,45 @@ import java.util.function.Consumer;
 
 class Int3ValueDialog extends JDialog {
 
-    private int min;
-    private int max;
-
     Int3ValueDialog(Frame owner, String title, Runnable action,
-                    int min, int max,
+                    int[] min, int[] max,
                     String[] names, int[] values, Consumer<Integer>[] setters) {
         super(owner, title, true);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                dispose();
-                action.run();
-            }
-        });
 
-        setSize(250, 100);
+        setSize(250, 120);
         setResizable(false);
 
         setLocationRelativeTo(owner);
 
         setLayout(new GridBagLayout());
 
-        this.min = min;
-        this.max = max;
+        for (int i = 0; i < 3; i++)
+            addColor(names[i], min[i], max[i], values[i], setters[i]);
 
-        addColor(names[0], values[0], setters[0]);
-        addColor(names[1], values[1], setters[1]);
-        addColor(names[2], values[2], setters[2]);
+        GridBagConstraints constraints = new GridBagConstraints(1, 4,
+                1, 1, 1, 1, GridBagConstraints.CENTER,
+                GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0);
+
+//        ------   applyButton   ------
+        JButton applyButton = new JButton("Apply");
+        applyButton.addActionListener(e -> {
+            dispose();
+            action.run();
+        });
+
+        add(applyButton, constraints);
+
+//        ------   cancelButton   ------
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> dispose());
+
+        constraints.gridx = 2;
+        add(cancelButton, constraints);
 
         setVisible(true);
     }
 
-    private void addColor(String name, int value, Consumer<Integer> setter) {
+    private void addColor(String name, int min, int max, int value, Consumer<Integer> setter) {
         GridBagConstraints constraints = new GridBagConstraints(0, GridBagConstraints.RELATIVE,
                 1, 1, 1, 1, GridBagConstraints.CENTER,
                 GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0);

@@ -19,37 +19,39 @@ class AreaA extends Area {
     private class Selection {
         int x;
         int y;
-        int size;   //  FIXME: change to { width, height }, add small image selection support
+
+        int width;
+        int height;
 
         boolean active = false;
 
         void relocate(int mouseX, int mouseY) {
             active = true;
 
-            int newX = (mouseX - BORDER) - size / 2;
+            int newX = (mouseX - BORDER) - width / 2;
             x = (newX < 0) ? 0
-                           : (newX > usedWidth - size) ? usedWidth - size
-                                                       : newX;
+                           : (newX > usedWidth - width) ? usedWidth - width
+                                                        : newX;
 
-            int newY = (mouseY - BORDER) - size / 2;
+            int newY = (mouseY - BORDER) - height / 2;
             y = (newY < 0) ? 0
-                           : (newY > usedHeight - size) ? usedHeight - size
-                                                        : newY;
+                           : (newY > usedHeight - height) ? usedHeight - height
+                                                          : newY;
         }
 
-        void paintSelection(Graphics g) {
+        void paintSelection(Graphics g) {   //  TODO: fix bugged partition repaint
             g.setXORMode(DARK_TRANSPARENT);
 
             g.fillRect(BORDER, BORDER, usedWidth, usedHeight);
-            g.fillRect(x + BORDER, y + BORDER, size, size);
+            g.fillRect(x + BORDER, y + BORDER, width, height);
 
             g.setPaintMode();
             g.setColor(DARK_TRANSPARENT);
 
             g.fillRect(BORDER, BORDER, usedWidth, y);
-            g.fillRect(BORDER, (y + size) + BORDER, usedWidth, usedHeight - (y + size));
-            g.fillRect(BORDER, y + BORDER, x, size);
-            g.fillRect((x + size) + BORDER, y + BORDER, usedWidth - (x + size), size);
+            g.fillRect(BORDER, (y + height) + BORDER, usedWidth, usedHeight - (y + height));
+            g.fillRect(BORDER, y + BORDER, x, height);
+            g.fillRect((x + width) + BORDER, y + BORDER, usedWidth - (x + width), height);
         }
     }
 
@@ -117,8 +119,11 @@ class AreaA extends Area {
         usedWidth = usedImage.getWidth();
         usedHeight = usedImage.getHeight();
 
-        selection.size = (usedWidth > usedHeight) ? SIZE * usedWidth / image.getWidth()
-                                                  : SIZE * usedHeight / image.getHeight();
+        selection.width = ((SIZE < image.getWidth()) ? SIZE : image.getWidth())
+                        * usedWidth / image.getWidth();
+        selection.height = ((SIZE < image.getHeight()) ? SIZE : image.getHeight())
+                         * usedHeight / image.getHeight();
+
         selection.active = false;
 
         super.setImage(usedImage);

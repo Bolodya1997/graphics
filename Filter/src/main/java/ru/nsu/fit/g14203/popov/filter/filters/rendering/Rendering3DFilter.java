@@ -1,6 +1,7 @@
 package ru.nsu.fit.g14203.popov.filter.filters.rendering;
 
 import ru.nsu.fit.g14203.popov.filter.filters.Filter;
+import ru.nsu.fit.g14203.popov.filter.filters.Util;
 import ru.nsu.fit.g14203.popov.util.State;
 
 import java.awt.*;
@@ -127,8 +128,7 @@ public class Rendering3DFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
-        result.setData(image.getData());
+        BufferedImage result = Util.copyImage(image);
 
         field.computeMaxMin(sizeX, sizeY, sizeZ);
 
@@ -147,17 +147,18 @@ public class Rendering3DFilter implements Filter {
         double min = field.getMin();
         double step = (max - min) / 100.0;
 
+        if (max == min) {
+            min = 0;
+            step = max / 100;
+        }
+
         double __sizeZ = 1.0 / sizeZ;
 
         for (int vX = lowerBound; vX < upperBound; vX++) {
             double __x = 1.0 / (sizeX * 2.0) * (2 * vX + 1);
-            if (__x * 350 > result.getWidth())
-                break;
 
             for (int vY = 0; vY < sizeY; vY++) {
                 double __y = 1.0 / (sizeY * 2.0) * (2 * vY + 1);
-                if (__y * 350 > result.getHeight())
-                    break;
 
                 double aValue = 1;
                 double[] eValue = { 0, 0, 0 };    //  [R, G, B]
@@ -191,18 +192,18 @@ public class Rendering3DFilter implements Filter {
     }
 
     private void applyPart(int vX, int vY, double aValue, double[] eValue, BufferedImage result) {
-        int xLowerBound = (int) ((350.0 / sizeX) * vX + 0.5);   //  FIXME: make based on picture size
-        int xUpperBound = (int) ((350.0 / sizeX) * (vX + 1) + 0.5);
+        int xLowerBound = (int) ((result.getWidth() / sizeX) * vX + 0.5);
+        int xUpperBound = (int) ((result.getWidth() / sizeX) * (vX + 1) + 0.5);
 
-        int yLowerBound = (int) ((350.0 / sizeY) * vY + 0.5);
-        int yUpperBound = (int) ((350.0 / sizeY) * (vY + 1) + 0.5);
+        int yLowerBound = (int) ((result.getHeight() / sizeY) * vY + 0.5);
+        int yUpperBound = (int) ((result.getHeight() / sizeY) * (vY + 1) + 0.5);
 
         for (int x = xLowerBound; x < xUpperBound; x++) {
-            if (x > result.getWidth())
+            if (x >= result.getWidth())
                 break;
 
             for (int y = yLowerBound; y < yUpperBound; y++) {
-                if (y > result.getHeight())
+                if (y >= result.getHeight())
                     break;
 
                 int R = (result.getRGB(x, y) & 0xFF0000) / 0x010000;

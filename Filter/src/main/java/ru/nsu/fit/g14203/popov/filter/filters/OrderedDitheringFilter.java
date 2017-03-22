@@ -43,22 +43,26 @@ public class OrderedDitheringFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = Util.copyImage(image);
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
                 int R = (image.getRGB(x, y) & 0xFF0000) / 0x010000;
                 int G = (image.getRGB(x, y) & 0x00FF00) / 0x000100;
                 int B = (image.getRGB(x, y) & 0x0000FF);
 
-                R = (int) (R + 0xFF * (getThreshold(x, y) - 0.5) + 0.5);
+                int eR = 0xFF;  //  Util.getClosestColor(R, RSize) - R;
+                int eG = 0xFF;  //  Util.getClosestColor(G, GSize) - G;
+                int eB = 0xFF;  //  Util.getClosestColor(B, BSize) - B;
+
+                R = (int) (R + eR * (getThreshold(x, y) - 0.5) + 0.5);
                 R = (R < 0) ? 0
                         : (R > 0xFF) ? 0xFF
                         : R;
-                G = (int) (G + 0xFF * (getThreshold(x, y) - 0.5) + 0.5);
+                G = (int) (G + eG * (getThreshold(x, y) - 0.5) + 0.5);
                 G = (G < 0) ? 0
                         : (G > 0xFF) ? 0xFF
                         : G;
-                B = (int) (B + 0xFF * (getThreshold(x, y) - 0.5) + 0.5);
+                B = (int) (B + eB * (getThreshold(x, y) - 0.5) + 0.5);
                 B = (B < 0) ? 0
                         : (B > 0xFF) ? 0xFF
                         : B;

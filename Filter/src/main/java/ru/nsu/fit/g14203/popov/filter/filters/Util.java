@@ -2,7 +2,7 @@ package ru.nsu.fit.g14203.popov.filter.filters;
 
 import java.awt.image.BufferedImage;
 
-class Util {
+public class Util {
 
     static void fillArea(int[][] matrix, int x, int y, BufferedImage image) {
         int size = matrix.length / 2;
@@ -36,5 +36,15 @@ class Util {
 
         int orb = (int) ((C - (d / 2)) / d);                //  with no rounding
         return (0xFF / (paletteSize - 1)) * (orb + 1);
+    }
+
+    public static BufferedImage copyImage(BufferedImage image) {
+        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < image.getHeight(); y++)
+                result.setRGB(x, y, image.getRGB(x, y));
+        }
+
+        return result;
     }
 }

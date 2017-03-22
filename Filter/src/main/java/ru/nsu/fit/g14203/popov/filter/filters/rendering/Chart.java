@@ -70,12 +70,12 @@ class Chart {
         if (!enable.isTrue())
             return 0;
 
-        if (pos == 0)
+        int p = (int) pos;
+        if (p == 0)
             return borders[0].rightBound;
-        if (pos == 100)
+        if (p == 100)
             return borders[100].leftBound;
 
-        int p = (int) pos;
         double left = borders[p].rightBound;
         double right = borders[p + 1].leftBound;
 

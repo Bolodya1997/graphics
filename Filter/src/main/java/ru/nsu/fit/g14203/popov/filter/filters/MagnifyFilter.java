@@ -6,7 +6,7 @@ public class MagnifyFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = Util.copyImage(image);
         for (int x = 0; x < image.getWidth() / 2; x++) {
             for (int y = 0; y < image.getHeight() / 2; y++) {
                 int RGB = image.getRGB(x + image.getWidth() / 4, y + image.getHeight() / 4);

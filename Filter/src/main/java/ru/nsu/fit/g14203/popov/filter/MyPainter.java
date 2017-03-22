@@ -14,7 +14,7 @@ class MyPainter {
      * @return                  shrunk image
      */
     static BufferedImage shrinkImage(BufferedImage image, int width, int height) {
-        if (image.getWidth() < width || image.getHeight() < height)
+        if (image.getWidth() < width && image.getHeight() < height)
             return image;
 
         int[][][] colors;   //  [x][y]{ R, G, B, count }

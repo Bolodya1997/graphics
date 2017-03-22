@@ -113,7 +113,7 @@ class FilterPanel extends JPanel {
         area.setBorder(BorderFactory.createDashedBorder(Color.DARK_GRAY, 10, 5));
     }
 
-//    ------   states   ------
+//    ------   getters   ------
 
     State getSelectEnable() {
         return selectEnable;
@@ -129,6 +129,11 @@ class FilterPanel extends JPanel {
 
     State getAreaCFilled() {
         return areaCFilled;
+    }
+
+    Dimension getImageSize() {
+        BufferedImage tmp = areaB.getImage();
+        return new Dimension(tmp.getWidth(), tmp.getHeight());
     }
 
 //    ------   actions   ------

@@ -7,7 +7,7 @@ public class MedianFilter implements Filter {
 
     @Override
     public BufferedImage apply(BufferedImage image) {
-        BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+        BufferedImage result = Util.copyImage(image);
 
         int[][] window = new int[5][5];
         int length = window.length * window.length / 2 + 1;
