@@ -50,19 +50,22 @@ public class OrderedDitheringFilter implements Filter {
                 int G = (image.getRGB(x, y) & 0x00FF00) / 0x000100;
                 int B = (image.getRGB(x, y) & 0x0000FF);
 
-                int eR = 0xFF;  //  Util.getClosestColor(R, RSize) - R;
-                int eG = 0xFF;  //  Util.getClosestColor(G, GSize) - G;
-                int eB = 0xFF;  //  Util.getClosestColor(B, BSize) - B;
+                int eR = Util.getClosestColor(R, RSize) - R;
+                int eG = Util.getClosestColor(G, GSize) - G;
+                int eB = Util.getClosestColor(B, BSize) - B;
 
-                R = (int) (R + eR * (getThreshold(x, y) - 0.5) + 0.5);
+                R = (eR != 0) ? (int) (R + (256.0 / RSize) * (getThreshold(x, y) - 0.5) + 0.5)
+                              : R;
                 R = (R < 0) ? 0
-                        : (R > 0xFF) ? 0xFF
-                        : R;
-                G = (int) (G + eG * (getThreshold(x, y) - 0.5) + 0.5);
+                            : (R > 0xFF) ? 0xFF
+                                         : R;
+                G = (eG != 0) ? (int) (G + (256.0 / GSize) * (getThreshold(x, y) - 0.5) + 0.5)
+                              : G;
                 G = (G < 0) ? 0
                         : (G > 0xFF) ? 0xFF
                         : G;
-                B = (int) (B + eB * (getThreshold(x, y) - 0.5) + 0.5);
+                B = (eB != 0) ? (int) (B + (256.0 / BSize) * (getThreshold(x, y) - 0.5) + 0.5)
+                              : B;
                 B = (B < 0) ? 0
                         : (B > 0xFF) ? 0xFF
                         : B;
