@@ -35,7 +35,7 @@ public class MainFrame extends AbstractMainFrame {
 
     @Override
     protected JPanel createMainPanel() {
-        filterPanel = new FilterPanel();
+        filterPanel = new FilterPanel(RENDERING_FILTER.getConfigLoaded());
         return filterPanel;
     }
 
@@ -388,11 +388,15 @@ public class MainFrame extends AbstractMainFrame {
             JOptionPane.showMessageDialog(this, "Bad config file", "Error",
                     JOptionPane.ERROR_MESSAGE);
         }
+
+        filterPanel.setAbsorptionPoints(RENDERING_FILTER.getAbsorptionEdges());
+        filterPanel.setEmissionPoints(RENDERING_FILTER.getEmissionEdges());
+        filterPanel.repaint();
     }
 
     private void renderAction() {
         String[] names = { "X", "Y", "Z" };
-        int[] values = { 350, 350, 350 };
+        int[] values = { 350, 350, 350 };   //  FIXME: make based on picture size
         Consumer[] setters = { ((Consumer<Integer>) RENDERING_FILTER::setSizeX),
                                ((Consumer<Integer>) RENDERING_FILTER::setSizeY),
                                ((Consumer<Integer>) RENDERING_FILTER::setSizeZ) };

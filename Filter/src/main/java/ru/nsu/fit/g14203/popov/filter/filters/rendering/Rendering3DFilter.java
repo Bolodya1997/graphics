@@ -3,6 +3,7 @@ package ru.nsu.fit.g14203.popov.filter.filters.rendering;
 import ru.nsu.fit.g14203.popov.filter.filters.Filter;
 import ru.nsu.fit.g14203.popov.util.State;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -27,6 +28,8 @@ public class Rendering3DFilter implements Filter {
                                  new Chart(255, emissionEnable) };      //  B
     private Field field;
 
+//    ------   setters   ------
+
     public void setSizeX(int sizeX) {
         this.sizeX = sizeX;
     }
@@ -39,6 +42,8 @@ public class Rendering3DFilter implements Filter {
         this.sizeZ = sizeZ;
     }
 
+//    ------   states   ------
+
     public State getConfigLoaded() {
         return configLoaded;
     }
@@ -50,6 +55,8 @@ public class Rendering3DFilter implements Filter {
     public State getEmissionEnable() {
         return emissionEnable;
     }
+
+//    ------   config   ------
 
     public void config(InputStream stream) {
         Chart __absorption = new Chart(1, absorptionEnable);
@@ -105,6 +112,18 @@ public class Rendering3DFilter implements Filter {
         absorptionEnable.setState(true);
         emissionEnable.setState(true);
     }
+
+    public Point[] getAbsorptionEdges() {
+        return absorption.getEdges();
+    }
+
+    public Point[][] getEmissionEdges() {
+        return Arrays.stream(emission)
+                .map(Chart::getEdges)
+                .toArray(Point[][]::new);
+    }
+
+//    ------   filter   ------
 
     @Override
     public BufferedImage apply(BufferedImage image) {
@@ -172,7 +191,7 @@ public class Rendering3DFilter implements Filter {
     }
 
     private void applyPart(int vX, int vY, double aValue, double[] eValue, BufferedImage result) {
-        int xLowerBound = (int) ((350.0 / sizeX) * vX + 0.5);   //  TODO: remove magic constant 350.0
+        int xLowerBound = (int) ((350.0 / sizeX) * vX + 0.5);   //  FIXME: make based on picture size
         int xUpperBound = (int) ((350.0 / sizeX) * (vX + 1) + 0.5);
 
         int yLowerBound = (int) ((350.0 / sizeY) * vY + 0.5);

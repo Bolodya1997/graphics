@@ -55,10 +55,11 @@ class Chart {
         double yWeight = 100 / maxValue;
 
         Stream.Builder<Point> builder = Stream.builder();
-        for (int i = 0; i < borders.length; i++) {
+        for (int i = 0; i < borders.length - 1; i++) {
             builder.add(new Point(i, (int) (borders[i].leftBound * yWeight + 0.5)));
             builder.add(new Point(i, (int) (borders[i].rightBound * yWeight + 0.5)));
         }
+        builder.add(new Point(100, (int) (borders[100].leftBound * yWeight + 0.5)));
 
         return builder.build()
                 .distinct()

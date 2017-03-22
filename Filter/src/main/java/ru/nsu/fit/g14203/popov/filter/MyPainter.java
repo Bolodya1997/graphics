@@ -1,5 +1,6 @@
 package ru.nsu.fit.g14203.popov.filter;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 class MyPainter {
@@ -76,5 +77,14 @@ class MyPainter {
         }
 
         return colors;
+    }
+
+    static void drawChart(Graphics g, Point[] points, int width, int height, int offset) {
+        Point prev = points[0];
+        for (int i = 1; i < points.length; i++) {
+            g.drawLine(points[i].x * width / 100, height - (points[i].y * height / 100) + offset,
+                       prev.x * width / 100, height - (prev.y * height / 100) + offset);
+            prev = points[i];
+        }
     }
 }
