@@ -27,8 +27,6 @@ public class WaitingDialog extends JDialog {
         setResizable(false);
         setUndecorated(true);
 
-        setLocationRelativeTo(owner);
-
         this.ready = ready;
 
 //        ------   label   ------
@@ -52,6 +50,7 @@ public class WaitingDialog extends JDialog {
             timer.start();
         }
 
+        SwingUtilities.invokeLater(() -> setLocationRelativeTo(owner));
         setVisible(true);
     }
 
