@@ -212,7 +212,7 @@ public class MainFrame extends AbstractMainFrame {
         JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
 //                      ------   About   ------
         addMenuItem(helpMenu, "About", aboutIcon, KeyEvent.VK_A,
-                "Show information about Filter", NO_ACTION);
+                "Show information about Filter", this::showAboutDialog);
 
 //        ------   toolbars   ------
 //              ------   TOP   ------

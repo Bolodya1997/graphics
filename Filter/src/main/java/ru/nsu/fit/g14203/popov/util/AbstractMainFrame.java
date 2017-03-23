@@ -274,4 +274,11 @@ public abstract class AbstractMainFrame extends JFrame {
 
         toolBar.add(toggleButton);
     }
+
+//    ------   About dialog   ------
+
+    protected void showAboutDialog() {
+        JOptionPane.showMessageDialog(this, "FIT NSU\ng14203\nPopov Vladimir", "About",
+                                      JOptionPane.PLAIN_MESSAGE);
+    }
 }
