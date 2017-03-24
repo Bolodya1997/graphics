@@ -180,7 +180,7 @@ public class MainFrame extends AbstractMainFrame {
 //                      ------   Gamma   ------
         JMenuItem gammaMenuItem = addMenuItem(editMenu, "Gamma", gammaIcon, KeyEvent.VK_G,
                 "Gamma correction",
-                () -> intValueFiltersAction("Set gamma * 100", 10, 500,
+                () -> intValueFiltersAction("Set gamma * 100", 10, 300,
                         100, GAMMA_FILTER::setGamma,
                         GAMMA_FILTER),
                 filterPanel.getAreaBFilled());
