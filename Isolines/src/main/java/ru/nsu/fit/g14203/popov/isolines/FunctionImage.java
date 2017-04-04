@@ -1,13 +1,14 @@
 package ru.nsu.fit.g14203.popov.isolines;
 
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 
 class FunctionImage extends BufferedImage {
 
     FunctionImage(int width, int height,
-                  DoublePoint from, DoublePoint to, double dx, double dy,
-                  Field2D function, Legend legend) {
+                  Point2D.Double from, Point2D.Double to, double dx, double dy,
+                  Function2D function, Legend legend) {
         super(width, height, TYPE_INT_RGB);
 
         int __x = 0;

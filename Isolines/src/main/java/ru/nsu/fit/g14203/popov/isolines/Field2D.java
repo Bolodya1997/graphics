@@ -1,9 +1,10 @@
 package ru.nsu.fit.g14203.popov.isolines;
 
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 
-class Field2D {
+class Field2D extends Function2D {
 
     private class Charge {
         double x;
@@ -31,20 +32,8 @@ class Field2D {
         return this;
     }
 
-    double[] getMinMax(DoublePoint from, DoublePoint to, double dx, double dy) {
-        double[] result = { Double.MAX_VALUE, Double.MIN_VALUE };   //  [min, max]
-        for (double x = from.getX(); x < to.getX(); x += dx) {
-            for (double y = from.getY(); y < to.getY(); y += dy) {
-                double value = getValue(x, y);
-                result[0] = Math.min(value, result[0]);
-                result[1] = Math.max(value, result[1]);
-            }
-        }
-
-        return result;
-    }
-
-    double getValue(double x, double y) {
+    @Override
+    public double getValue(double x, double y) {
         return charges.parallelStream()
                 .mapToDouble(c -> c.influenceOn(x, y))
                 .sum();

@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.geom.Point2D;
 import java.io.Reader;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -17,17 +18,25 @@ class FunctionPanel extends JPanel {
     private final static int MAX_WIDTH = 1258;
     private final static int MAX_HEIGHT = 702;
 
-    private Field2D function = new Field2D()/*.addCharge(1, 3, -1)
+    private Function2D function/* = new Field2D().addCharge(1, 3, -1)
                                             .addCharge(5, 2, 0.7)
-                                            .addCharge(1, 2, 1)*/
-                                            .addCharge(0, 0, 4)
-                                            /*.addCharge(-2, 1, -1.4)*/;
+                                            .addCharge(1, 2, 1)
+                                            .addCharge(0, 0, 2)
+                                            .addCharge(-2, 1, -1.4)*/;
+    {
+        function = new Function2D() {
+            @Override
+            double getValue(double x, double y) {
+                return x * Math.sin(x) + y * Math.cos(y);
+            }
+        };
+    }
 
     private Legend legend = new Legend();
     private FunctionMap functionMap = new FunctionMap();
 
-    private DoublePoint from = new DoublePoint();
-    private DoublePoint to = new DoublePoint();
+    private Point2D.Double from = new Point2D.Double();
+    private Point2D.Double to = new Point2D.Double();
 
     private Color isolineColor;
 

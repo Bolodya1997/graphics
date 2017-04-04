@@ -53,7 +53,7 @@ class Legend extends JPanel {
         int width = getWidth() / 2;
         double height = ((double) getHeight()) / colors.length;
 
-        int fontSize = width / 4;
+        int fontSize = width / 3;
         g.setFont(new Font("Serif", Font.PLAIN, fontSize));
 
         g.drawString(String.format("%.3f", min), width + 1, 0);

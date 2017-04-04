@@ -7,14 +7,15 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 class FunctionMap extends JPanel {
     private State functionLoaded = new State(false);
 
-    private DoublePoint from;
-    private DoublePoint to;
+    private Point2D.Double from;
+    private Point2D.Double to;
 
-    private Field2D function;
+    private Function2D function;
 
     private FunctionImage functionImage;
     private IsolineImage isolineImage;
@@ -23,20 +24,19 @@ class FunctionMap extends JPanel {
 
     FunctionMap() {
         SingleThreadPool threadPool = new SingleThreadPool();
-        addMouseListener(new MouseAdapter() {
+        addMouseMotionListener(new MouseAdapter() {
             @Override
-            public void mousePressed(MouseEvent e) {
+            public void mouseDragged(MouseEvent e) {
                 threadPool.execute(() -> {
                     if (!functionLoaded.isTrue())
                         return;
 
                     double x = from.getX() + e.getX() * (to.getX() - from.getX()) / getWidth();
                     double y = from.getY() + e.getY() * (to.getY() - from.getY()) / getHeight();
-                    Isoline isoline = new Isoline(1258, 702,
+                    Isoline isoline = new Isoline(100, 100,
                                                   from, to,
                                                   function, function.getValue(x, y));
                     isolineImage = new IsolineImage(getWidth(), getHeight(),
-                                                    from, to,
                                                     isoline, isolineColor);
 
                     SwingUtilities.invokeLater(FunctionMap.this::repaint);
@@ -45,8 +45,9 @@ class FunctionMap extends JPanel {
         });
     }
 
-    void setFunction(DoublePoint from, DoublePoint to,
-                     Field2D function, Legend legend, Color isolineColor) {
+    void setFunction(Point2D.Double from, Point2D.Double to,
+                     Function2D function, Legend legend,
+                     Color isolineColor) {
         if (getWidth() == 0 || getHeight() == 0)
             return;
 

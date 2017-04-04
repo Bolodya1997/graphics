@@ -224,7 +224,7 @@ public abstract class AbstractMainFrame extends JFrame {
 
 //    ------   toolbars   ------
 
-    protected JToolBar addToolbar(String side) {
+    protected JToolBar addToolBar(String side) {
         JToolBar toolBar = new JToolBar();
         toolBar.setFloatable(false);
 
