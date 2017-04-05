@@ -1,10 +1,11 @@
 package ru.nsu.fit.g14203.popov.isolines;
 
+import ru.nsu.fit.g14203.popov.util.ReversedBufferedImage;
+
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.awt.image.BufferedImage;
 
-class IsolineImage extends BufferedImage {
+class IsolineImage extends ReversedBufferedImage {
 
     IsolineImage(int width, int height,
                  Isoline isoline, Color isolineColor) {
@@ -20,9 +21,9 @@ class IsolineImage extends BufferedImage {
         g.setColor(isolineColor);
         for (Point2D.Double[] edge : isoline.getEdges()) {
             int x1 = (int) ((edge[0].getX() - from.getX()) * pixelX + 0.5);
-            int y1 = (int) ((edge[0].getY() - from.getY()) * pixelY + 0.5);
+            int y1 = reverseY((int) ((edge[0].getY() - from.getY()) * pixelY + 0.5));
             int x2 = (int) ((edge[1].getX() - from.getX()) * pixelX + 0.5);
-            int y2 = (int) ((edge[1].getY() - from.getY()) * pixelY + 0.5);
+            int y2 = reverseY((int) ((edge[1].getY() - from.getY()) * pixelY + 0.5));
             g.drawLine(x1, y1, x2, y2);
         }
     }

@@ -5,48 +5,97 @@ import ru.nsu.fit.g14203.popov.util.State;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 class FunctionMap extends JPanel {
-    private State functionLoaded = new State(false);
+    private boolean functionLoaded = false;
+
+    private State gridShown;
+    private State isolinesShown;
+
+    private Consumer<String> showInStatusBar;
+    private Runnable clearStatusBar;
+
+    private Function2D function;
+    private FunctionImage functionImage;
 
     private Point2D.Double from;
     private Point2D.Double to;
 
-    private Function2D function;
+    private Legend legend;
 
-    private FunctionImage functionImage;
-    private IsolineImage isolineImage;
+    private int gridWidth;
+    private int gridHeight;
+
+    private Isoline[] baseIsolines;
+    private BufferedImage[] baseIsolinesImages;
+
+    private Isoline isoline;
+    private BufferedImage isolineImage;
 
     private Color isolineColor;
 
-    FunctionMap() {
-        SingleThreadPool threadPool = new SingleThreadPool();
-        addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                threadPool.execute(() -> {
-                    if (!functionLoaded.isTrue())
-                        return;
+    private MouseEvent reverseInput(MouseEvent e) {
+        return new MouseEvent((Component) e.getSource(), e.getID(), e.getWhen(), e.getModifiers(),
+                              e.getX(), (getHeight() - 1) - e.getY(), e.getClickCount(), e.isPopupTrigger(),
+                              e.getButton());
+    }
 
-                    double x = from.getX() + e.getX() * (to.getX() - from.getX()) / getWidth();
-                    double y = from.getY() + e.getY() * (to.getY() - from.getY()) / getHeight();
-                    Isoline isoline = new Isoline(100, 100,
-                                                  from, to,
-                                                  function, function.getValue(x, y));
-                    isolineImage = new IsolineImage(getWidth(), getHeight(),
-                                                    isoline, isolineColor);
+    FunctionMap(State gridShown, State isolinesShown,
+                Consumer<String> showInStatusBar, Runnable clearStatusBar) {
+        this.gridShown = gridShown;
+        this.isolinesShown = isolinesShown;
+        this.showInStatusBar = showInStatusBar;
+        this.clearStatusBar = clearStatusBar;
+
+        SingleThreadPool resizePool = new SingleThreadPool();
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizePool.execute(() -> {
+                    recountFunction();
+                    recountIsolines();
 
                     SwingUtilities.invokeLater(FunctionMap.this::repaint);
                 });
+            }
+        });
+
+        SingleThreadPool threadPool = new SingleThreadPool();
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                threadPool.execute(() -> drawIsoline(reverseInput(e)));
+            }
+        });
+        addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                showInStatus(reverseInput(e));
+                threadPool.execute(() -> drawIsoline(reverseInput(e)));
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                showInStatus(reverseInput(e));
+            }
+        });
+
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseExited(MouseEvent e) {
+                clearStatusBar.run();
             }
         });
     }
 
     void setFunction(Point2D.Double from, Point2D.Double to,
                      Function2D function, Legend legend,
+                     int gridWidth, int gridHeight,
                      Color isolineColor) {
         if (getWidth() == 0 || getHeight() == 0)
             return;
@@ -55,34 +104,110 @@ class FunctionMap extends JPanel {
         this.to = to;
         this.function = function;
         this.isolineColor = isolineColor;
+        this.gridWidth = gridWidth;
+        this.gridHeight = gridHeight;
+        this.legend = legend;
+
+        baseIsolines = Arrays.stream(legend.getBaseLevels())
+                .mapToObj(level -> new Isoline(gridWidth, gridHeight,
+                                               from, to,
+                                               function, level))
+                .toArray(Isoline[]::new);
+        baseIsolinesImages = new BufferedImage[baseIsolines.length];
+
+        isoline = null;
+
+        recountFunction();
+        recountIsolines();
+
+        functionLoaded = true;
+        SwingUtilities.invokeLater(this::repaint);
+    }
+
+    void recountFunction() {
+        if (legend == null || !legend.isFunctionLoaded())
+            return;
 
         double dx = (to.getX() - from.getX()) / (getWidth() - 1);
         double dy = (to.getY() - from.getY()) / (getHeight() - 1);
         this.functionImage = new FunctionImage(getWidth(), getHeight(),
-                                               from, to, dx, dy,
+                                               from, dx, dy,
                                                function, legend);
+    }
 
-        functionLoaded.setState(true);
+    private void recountIsolines() {
+        if (baseIsolinesImages == null || !isolinesShown.isTrue())
+            return;
+
+        if (isoline != null)
+            isolineImage = new IsolineImage(getWidth(), getHeight(),
+                    isoline, isolineColor);
+
+        for (int i = 0; i < baseIsolinesImages.length; i++)
+            baseIsolinesImages[i] = new IsolineImage(getWidth(), getHeight(),
+                    baseIsolines[i], isolineColor);
+    }
+
+    private void drawIsoline(MouseEvent e) {
+        if (!functionLoaded || !isolinesShown.isTrue())
+            return;
+
+        double x = from.getX() + e.getX() * (to.getX() - from.getX()) / getWidth();
+        double y = from.getY() + e.getY() * (to.getY() - from.getY()) / getHeight();
+        isoline = new Isoline(gridWidth, gridHeight,
+                              from, to,
+                              function, function.getValue(x, y));
+        isolineImage = new IsolineImage(getWidth(), getHeight(),
+                                        isoline, isolineColor);
+
         SwingUtilities.invokeLater(this::repaint);
     }
 
-    void clear() {
-        functionLoaded.setState(false);
-        SwingUtilities.invokeLater(this::repaint);
+    void clearIsoline() {
+        isoline = null;
+        isolineImage = null;
+
+        repaint();
     }
 
-    State getFunctionLoaded() {
-        return functionLoaded;
+    private void showInStatus(MouseEvent e) {
+        if (!functionLoaded)
+            return;
+
+        double x = from.getX() + (to.getX() - from.getX()) * e.getX() / getWidth();
+        double y = from.getY() + (to.getY() - from.getY()) * e.getY() / getHeight();
+        showInStatusBar.accept(String.format("x : %.3f     y : %.3f     f(x, y) : %.3f",
+                                             x, y, function.getValue(x, y)));
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (!functionLoaded.isTrue())
+        if (!functionLoaded)
             return;
+        Graphics2D g2D = (Graphics2D) g;
 
-        g.drawImage(functionImage, 0, 0, getWidth(), getHeight(), this);
+        g2D.drawImage(functionImage, 0, 0, getWidth(), getHeight(), this);
 
-        if (isolineImage != null)
-            g.drawImage(isolineImage, 0, 0, getWidth(), getHeight(), this);
+        if (gridShown.isTrue()) {
+            g2D.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,
+                    10, new float[] { 0.1f, 3.9f }, 0));
+            g2D.setColor(Color.BLUE);
+
+            double width = (getWidth() + 1) / ((double) gridWidth);
+            for (int i = 0; i < gridWidth; i++)
+                g2D.drawLine((int) (width * i - 1.5), 0, (int) (width * i - 1.5), getHeight());
+
+            double height = (getHeight() + 1) / ((double) gridHeight);
+            for (int i = 0; i < gridHeight; i++)
+                g2D.drawLine(0, (int) (height * i - 1.5), getWidth(), (int) (height * i - 1.5));
+        }
+
+        if (isolinesShown.isTrue()) {
+            if (isolineImage != null)
+                g2D.drawImage(isolineImage, 0, 0, getWidth(), getHeight(), this);
+
+            for (BufferedImage image : baseIsolinesImages)
+                g2D.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+        }
     }
 }

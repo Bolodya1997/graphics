@@ -5,20 +5,29 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 class Isoline {
+    private Point2D.Double[][] edges;
+    private Stream.Builder<Point2D.Double[]> __edges = Stream.builder();
 
-    private Stream.Builder<Point2D.Double[]> edges = Stream.builder();
+    private Function2D function;
 
     private Point2D.Double from;
     private Point2D.Double to;
 
+    private double cellWidth;
+    private double cellHeight;
+
+    private double level;
+
     Isoline(int gridWidth, int gridHeight,
             Point2D.Double from, Point2D.Double to,
             Function2D function, double level) {
+        this.function = function;
         this.from = from;
         this.to = to;
+        this.level = level;
 
-        double cellWidth = (to.getX() - from.getX()) / gridWidth;
-        double cellHeight = (to.getY() - from.getY()) / gridHeight;
+        cellWidth = (to.getX() - from.getX()) / gridWidth;
+        cellHeight = (to.getY() - from.getY()) / gridHeight;
 
         for (int gridX = 0; gridX < gridWidth; gridX++) {
             for (int gridY = 0; gridY < gridHeight; gridY++) {
@@ -29,18 +38,16 @@ class Isoline {
                     corners[i].setLocation(from.getX() + (gridX + i % 2) * cellWidth,
                                            from.getY() + (gridY + i / 2) * cellHeight);
 
-                computeCell(cellWidth, cellHeight,
-                            from.getX() + gridX * cellWidth, from.getY() + gridY * cellHeight,
-                            corners,
-                            function, level);
+                computeCell(from.getX() + gridX * cellWidth, from.getY() + gridY * cellHeight,
+                            corners);
             }
         }
+
+        edges = __edges.build().toArray(Point2D.Double[][]::new);
     }
 
-    private void computeCell(double cellWidth, double cellHeight,
-                             double offsetX, double offsetY,
-                             Point2D.Double[] corners,
-                             Function2D function, double level) {
+    private void computeCell(double offsetX, double offsetY,
+                             Point2D.Double[] corners) {
         double[] f = Arrays.stream(corners)
                 .mapToDouble(p -> function.getValue(p.getX(), p.getY()))
                 .toArray();
@@ -86,7 +93,7 @@ class Isoline {
              */
             case 0b1000:
             case 0b0111:
-                edges.add(new Point2D.Double[] { p01, p02 });
+                __edges.add(new Point2D.Double[] { p01, p02 });
                 break;
 
             /*
@@ -96,7 +103,7 @@ class Isoline {
              */
             case 0b0100:
             case 0b1011:
-                edges.add(new Point2D.Double[] { p01, p13 });
+                __edges.add(new Point2D.Double[] { p01, p13 });
                 break;
 
             /*
@@ -106,7 +113,7 @@ class Isoline {
              */
             case 0b0010:
             case 0b1101:
-                edges.add(new Point2D.Double[] { p23, p02 });
+                __edges.add(new Point2D.Double[] { p23, p02 });
                 break;
 
             /*
@@ -116,7 +123,7 @@ class Isoline {
              */
             case 0b0001:
             case 0b1110:
-                edges.add(new Point2D.Double[] { p23, p13 });
+                __edges.add(new Point2D.Double[] { p23, p13 });
                 break;
 
             /*
@@ -126,7 +133,7 @@ class Isoline {
              */
             case 0b0011:
             case 0b1100:
-                edges.add(new Point2D.Double[] { p02, p13 });
+                __edges.add(new Point2D.Double[] { p02, p13 });
                 break;
 
             /*
@@ -136,7 +143,7 @@ class Isoline {
              */
             case 0b0101:
             case 0b1010:
-                edges.add(new Point2D.Double[] { p01, p23 });
+                __edges.add(new Point2D.Double[] { p01, p23 });
                 break;
 
             /*
@@ -148,13 +155,13 @@ class Isoline {
             case 0b1001:
                 double center = function.getValue((corners[3].getX() - corners[0].getX()) / 2,
                                                   (corners[3].getY() - corners[0].getX()) / 2);
-                type ^= (center < 0) ? 0 : 0b1111;
+                type ^= (center < level) ? 0 : 0b1111;
                 if (type == 0b0110) {
-                    edges.add(new Point2D.Double[] { p01, p13 });
-                    edges.add(new Point2D.Double[] { p23, p02 });
+                    __edges.add(new Point2D.Double[] { p01, p13 });
+                    __edges.add(new Point2D.Double[] { p23, p02 });
                 } else {
-                    edges.add(new Point2D.Double[] { p01, p02 });
-                    edges.add(new Point2D.Double[] { p23, p13 });
+                    __edges.add(new Point2D.Double[] { p01, p02 });
+                    __edges.add(new Point2D.Double[] { p23, p13 });
                 }
         }
     }
@@ -168,6 +175,6 @@ class Isoline {
     }
 
     Point2D.Double[][] getEdges() {
-        return edges.build().toArray(Point2D.Double[][]::new);
+        return edges;
     }
 }
