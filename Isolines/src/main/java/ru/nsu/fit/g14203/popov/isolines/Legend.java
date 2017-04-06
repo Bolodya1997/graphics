@@ -9,25 +9,26 @@ import java.awt.event.ComponentEvent;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.Observer;
-import java.util.stream.Stream;
 
 class Legend extends JPanel {
 
-    private final static int INTERPOLATION_COUNT = 225;
+    private final static Function2D FUNCTION = new Function2D() {
+        @Override
+        double getValue(double x, double y) {
+            return y;
+        }
+    };
 
     private State functionLoaded = new State(false);
     private State interpolationOn;
 
     private double min;
     private double max;
+    private double step;
 
-    private double[] borders;
     private Color[] colors;
+    private double[] levels;
 
-    private double[] interpolationBorders;
-    private Color[] interpolationColors;
-
-    private Function2D function2D;
     private BufferedImage image;
 
     Legend(State interpolationOn) {
@@ -49,42 +50,14 @@ class Legend extends JPanel {
         this.max = max;
         this.colors = colors;
 
-        borders = new double[colors.length - 1];
-        for (int i = 0; i < borders.length; i++)
-            borders[i] = min + (max - min) / colors.length * (i + 1);
+        step = (max - min) / colors.length;
 
-        computeInterpolatedColors();
-        interpolationBorders = new double[interpolationColors.length - 1];
-        for (int i = 0; i < interpolationBorders.length; i++)
-            interpolationBorders[i] = min + (max - min) / interpolationColors.length * (i + 1);
-
-        function2D = new Function2D() {
-            @Override
-            double getValue(double x, double y) {
-                return y;
-            }
-        };
+        levels = new double[colors.length - 1];
+        for (int i = 0; i < levels.length; i++)
+            levels[i] = max - step * (i + 1);
 
         functionLoaded.setState(true);
         setImage();
-    }
-
-    private void computeInterpolatedColors() {
-        Stream.Builder<Color> __interpolationColors = Stream.builder();
-        for (int i = 0; i < colors.length - 1; i++) {
-            double[] RGB = { colors[i].getRed(), colors[i].getGreen(), colors[i].getBlue() };
-            double dR = (colors[i + 1].getRed() - RGB[0]) / INTERPOLATION_COUNT;
-            double dG = (colors[i + 1].getGreen() - RGB[1]) / INTERPOLATION_COUNT;
-            double dB = (colors[i + 1].getBlue() - RGB[2]) / INTERPOLATION_COUNT;
-
-            for (int k = 0; k < INTERPOLATION_COUNT; k++) {
-                __interpolationColors.add(new Color((int) (RGB[0] + dR * k + 0.5),
-                                                   (int) (RGB[1] + dG * k + 0.5),
-                                                   (int) (RGB[2] + dB * k + 0.5)));
-            }
-        }
-
-        interpolationColors = __interpolationColors.build().toArray(Color[]::new);
     }
 
     private void setImage() {
@@ -95,27 +68,57 @@ class Legend extends JPanel {
         double dy = (max - min) / (getHeight() - 1);
         image = new FunctionImage(getWidth() / 2, getHeight(),
                                   from, 1, dy,
-                function2D, Legend.this);
+                                  FUNCTION, Legend.this);
 
         SwingUtilities.invokeLater(Legend.this::repaint);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
+        Graphics2D g2D = (Graphics2D) g;
+
         if (!functionLoaded.isTrue()) {
-            g.clearRect(0, 0, getWidth(), getHeight());
+            g2D.setPaint(new GradientPaint(0, 0, Color.LIGHT_GRAY, 0, getHeight(), Color.BLACK));
+            g2D.fillRect(0, 0, getWidth(), getHeight());
             return;
         }
 
-        g.clearRect(0, 0, getWidth(), getHeight());
-        g.drawImage(image, 0, 0, this);
+        g2D.clearRect(0, 0, getWidth(), getHeight());
+        g2D.drawImage(image, 0, 0, this);
 
-        double height = getHeight() / (borders.length + 1.0);
-        int fontSize = getWidth() / 7;
-        g.setFont(new Font("Serif", Font.PLAIN, fontSize));
-        for (int i = 0; i < borders.length; i++)
-            g.drawString(String.format("%.3f", borders[(borders.length - 1) - i]), getWidth() / 2 + 1,
-                    (int) (height * (i + 1) + 0.5) + fontSize / 3);
+        double height = getHeight() / (levels.length + 1.0);
+        int fontSize = getWidth() / 7 - 1;
+        g2D.setFont(new Font("Serif", Font.PLAIN, fontSize));
+        for (int i = 0; i < colors.length - 1; i++)
+            g2D.drawString(String.format("%.3f", levels[i]), getWidth() / 2 + 1,
+                                                             (int) (height * (i + 1) + 0.5) + fontSize / 3);
+    }
+
+    private Color simpleColor(double value) {
+        if (value >= max)
+            return colors[colors.length - 1];
+
+        return colors[(int) ((value - min) / step)];
+    }
+
+    private Color interpolatedColor(double value) {
+        if (value - min <= step / 2)
+            return colors[0];
+        if (max - value <= step / 2)
+            return colors[colors.length - 1];
+
+        int block = (int) ((value - min) / (step / 2));
+        int i = block / 2 + block % 2;
+
+        double pos = (((value - min) + (step / 2)) - step * i) / step;
+
+        int dR = (int) ((colors[i].getRed() - colors[i - 1].getRed()) * pos + 0.5);
+        int dG = (int) ((colors[i].getGreen() - colors[i - 1].getGreen()) * pos + 0.5);
+        int dB = (int) ((colors[i].getBlue() - colors[i - 1].getBlue()) * pos + 0.5);
+
+        return new Color(colors[i - 1].getRed() + dR,
+                         colors[i - 1].getGreen() + dG,
+                         colors[i - 1].getBlue() + dB);
     }
 
 //    ------   getters   ------
@@ -124,21 +127,14 @@ class Legend extends JPanel {
         return functionLoaded;
     }
 
-    double[] getBorders() {
+    Color getColor(double value) {
         if (interpolationOn.isTrue())
-            return interpolationBorders;
-        else
-            return borders;
+            return interpolatedColor(value);
+
+        return simpleColor(value);
     }
 
-    Color[] getColors() {
-        if (interpolationOn.isTrue())
-            return interpolationColors;
-        else
-            return colors;
-    }
-
-    double[] getBaseLevels() {
-        return borders;
+    double[] getLevels() {
+        return levels;
     }
 }

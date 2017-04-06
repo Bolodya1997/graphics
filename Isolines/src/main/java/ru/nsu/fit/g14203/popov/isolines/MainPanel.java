@@ -18,29 +18,34 @@ class MainPanel extends JPanel {
     private final static int MAX_WIDTH = 1258;
     private final static int MAX_HEIGHT = 702;
 
+    private final static Point2D.Double DEFAULT_FROM = new Point2D.Double(0, 0);
+    private final static Point2D.Double DEFAULT_TO = new Point2D.Double(5, 5);
+
     private State isolinesShown = new State(true);
     private State gridShown = new State(true);
     private State pointsShown = new State(false);
     private State interpolationOn = new State(false);
 
-    private Point2D.Double from = new Point2D.Double(0, 0);
-    private Point2D.Double to = new Point2D.Double(5, 5);
+    private Function2D function = new Function2D() {
+        @Override
+        double getValue(double x, double y) {
+            double X = x * 0.5 + y * 0.5;
+            double Y = -x * 0.5 + y * 0.5;
 
-    private Function2D function;
-    {
-        function = new Function2D() {
-            @Override
-            double getValue(double x, double y) {
-                double X = x * 0.5 + y * 0.5;
-                double Y = -x * 0.5 + y * 0.5;
-
-                return X * X * Math.cos(X) - Y * Y * Math.sin(Y);
-            }
-        };
-    }
+            return X * X * Math.cos(X) - Y * Y * Math.sin(Y);
+        }
+    };
 
     private Legend legend = new Legend(interpolationOn);
     private FunctionMap functionMap;
+
+    private Point2D.Double from;
+    private Point2D.Double to;
+
+    private int gridWidth;
+    private int gridHeight;
+    private Color[] colors;
+    private Color isolineColor;
 
     MainPanel(Consumer<String> showInStatusBar, Runnable clearStatusBar) {
         functionMap = new FunctionMap(isolinesShown,
@@ -52,24 +57,22 @@ class MainPanel extends JPanel {
                 1, 1,
                 1, 1,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 0, 0);
+                new Insets(15, 15, 15, 15), 0, 0);
 
         add(functionMap, constraints);
 
         constraints.weightx = 0.07;
-        constraints.insets = new Insets(5, 5, 5, 5);
+        constraints.insets = new Insets(15, 0, 15, 15);
         add(legend, constraints);
 
         Observer functionMapRepaintObserver = (o, arg) -> SwingUtilities.invokeLater(functionMap::repaint);
-        isolinesShown.addObserver(functionMapRepaintObserver);
         gridShown.addObserver(functionMapRepaintObserver);
         pointsShown.addObserver(functionMapRepaintObserver);
 
         Observer functionMapRecountObserver = (o, arg) -> {
-            functionMap.recountFunction();
-
-            SwingUtilities.invokeLater(functionMap::repaint);
+            new Thread(functionMap::recount).start();
         };
+        isolinesShown.addObserver(functionMapRecountObserver);
         interpolationOn.addObserver(functionMapRecountObserver);
     }
 
@@ -83,11 +86,11 @@ class MainPanel extends JPanel {
         };
 
         String[] gridWH = nextLine.get().split(" ");
-        int gridWidth = Integer.decode(gridWH[0]);
-        int gridHeight = Integer.decode(gridWH[1]);
+        gridWidth = Integer.decode(gridWH[0]);
+        gridHeight = Integer.decode(gridWH[1]);
 
         int bordersCount = Integer.decode(nextLine.get());
-        Color[] colors =  Stream.generate(() -> {
+        colors =  Stream.generate(() -> {
             int[] RGB = Arrays.stream(nextLine.get().split(" "))
                     .mapToInt(Integer::decode)
                     .toArray();
@@ -97,8 +100,14 @@ class MainPanel extends JPanel {
         int[] RGB = Arrays.stream(nextLine.get().split(" "))
                 .mapToInt(Integer::decode)
                 .toArray();
-        Color isolineColor = new Color(RGB[0], RGB[1], RGB[2]);
+        isolineColor = new Color(RGB[0], RGB[1], RGB[2]);
 
+        from = DEFAULT_FROM;
+        to = DEFAULT_TO;
+        setArea();
+    }
+
+    void setArea() {
         double dx = (to.getX() - from.getX()) / (MAX_WIDTH - 1);
         double dy = (to.getY() - from.getY()) / (MAX_HEIGHT - 1);
 
@@ -107,13 +116,14 @@ class MainPanel extends JPanel {
         double max = tmp[1];
 
 //        ------   set new function   ------
-
         legend.setFunction(min, max, colors);
         functionMap.setFunction(from, to,
                                 function, legend,
                                 gridWidth, gridHeight,
                                 isolineColor);
     }
+
+//    ------   getters   ------
 
     State getFunctionLoaded() {
         return legend.getFunctionLoaded();
@@ -137,5 +147,13 @@ class MainPanel extends JPanel {
 
     void clearIsoline() {
         functionMap.clearIsoline();
+    }
+
+    Point2D.Double getFrom() {
+        return from;
+    }
+
+    Point2D.Double getTo() {
+        return to;
     }
 }

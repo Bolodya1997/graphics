@@ -32,6 +32,7 @@ public class MainFrame extends AbstractMainFrame {
         Icon pointsIcon         = new ImageIcon(MainFrame.class.getResource("Points.png"));
         Icon interpolationIcon  = new ImageIcon(MainFrame.class.getResource("Interpolation.png"));
 
+        Icon setAreaIcon          = new ImageIcon(MainFrame.class.getResource("Set_area.png"));
         Icon clearIcon          = new ImageIcon(MainFrame.class.getResource("Clear.png"));
 
         Icon aboutIcon          = new ImageIcon(MainFrame.class.getResource("About.png"));
@@ -71,6 +72,9 @@ public class MainFrame extends AbstractMainFrame {
                 NO_ACTION, mainPanel.getInterpolationOn(), mainPanel.getFunctionLoaded());
 //        ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
+//              ------   Set area   ------
+        JMenuItem setAreaMenuItem = addMenuItem(editMenu, "Set area", setAreaIcon, KeyEvent.VK_A,
+                "Set custom function area", this::setAreaAction, mainPanel.getFunctionLoaded());
 //              ------   Clear isoline   ------
         JMenuItem clearMenuItem = addMenuItem(editMenu, "Clear isolines", clearIcon, KeyEvent.VK_C,
                 "Clear user isoline", mainPanel::clearIsoline, mainPanel.getFunctionLoaded());
@@ -100,6 +104,8 @@ public class MainFrame extends AbstractMainFrame {
         addToolBarToggleButton(topToolBar, interpolationToggleMenuItem);
 //              ------      ------
         topToolBar.addSeparator();
+//              ------   Set area   ------
+        addToolBarButton(topToolBar, setAreaMenuItem);
 //              ------   Clear isoline   ------
         addToolBarButton(topToolBar, clearMenuItem);
 
@@ -160,5 +166,17 @@ public class MainFrame extends AbstractMainFrame {
             JOptionPane.showMessageDialog(this, "Bad config file", "Error",
                                           JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void setAreaAction() {
+        new AreaDialog(this, mainPanel.getFrom(), mainPanel.getTo());
+
+        State ready = new State(false);
+        new Thread(() -> {
+            mainPanel.setArea();
+            ready.setState(true);
+        }).start();
+
+        new WaitingDialog(this, ready);
     }
 }

@@ -17,12 +17,8 @@ class FunctionImage extends ReversedBufferedImage {
         for (double x = from.getX(); __x < getWidth(); x += dx, __x++) {
 
             int __y = 0;
-            for (double y = from.getY(); __y < getHeight(); y += dy, __y++) {
-                int i = Arrays.binarySearch(legend.getBorders(), function.getValue(x, y));
-                i = (i < 0) ? -(i + 1) : i;
-
-                setRGB(__x, __y, legend.getColors()[i].getRGB());
-            }
+            for (double y = from.getY(); __y < getHeight(); y += dy, __y++)
+                setRGB(__x, __y, legend.getColor(function.getValue(x, y)).getRGB());
         }
     }
 }
