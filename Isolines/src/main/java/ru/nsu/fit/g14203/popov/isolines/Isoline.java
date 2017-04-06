@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 class Isoline {
+    private Point2D.Double[] points;
+    private Stream.Builder<Point2D> __points = Stream.builder();
+
     private Point2D.Double[][] edges;
     private Stream.Builder<Point2D.Double[]> __edges = Stream.builder();
 
@@ -43,6 +46,7 @@ class Isoline {
             }
         }
 
+        points = __points.build().toArray(Point2D.Double[]::new);
         edges = __edges.build().toArray(Point2D.Double[][]::new);
     }
 
@@ -93,7 +97,11 @@ class Isoline {
              */
             case 0b1000:
             case 0b0111:
+                __points.add(p01);
+                __points.add(p02);
+
                 __edges.add(new Point2D.Double[] { p01, p02 });
+
                 break;
 
             /*
@@ -103,7 +111,11 @@ class Isoline {
              */
             case 0b0100:
             case 0b1011:
+                __points.add(p01);
+                __points.add(p13);
+
                 __edges.add(new Point2D.Double[] { p01, p13 });
+
                 break;
 
             /*
@@ -113,7 +125,11 @@ class Isoline {
              */
             case 0b0010:
             case 0b1101:
+                __points.add(p23);
+                __points.add(p02);
+
                 __edges.add(new Point2D.Double[] { p23, p02 });
+
                 break;
 
             /*
@@ -123,7 +139,11 @@ class Isoline {
              */
             case 0b0001:
             case 0b1110:
+                __points.add(p23);
+                __points.add(p13);
+
                 __edges.add(new Point2D.Double[] { p23, p13 });
+
                 break;
 
             /*
@@ -133,7 +153,11 @@ class Isoline {
              */
             case 0b0011:
             case 0b1100:
+                __points.add(p02);
+                __points.add(p13);
+
                 __edges.add(new Point2D.Double[] { p02, p13 });
+
                 break;
 
             /*
@@ -143,7 +167,11 @@ class Isoline {
              */
             case 0b0101:
             case 0b1010:
+                __points.add(p01);
+                __points.add(p23);
+
                 __edges.add(new Point2D.Double[] { p01, p23 });
+
                 break;
 
             /*
@@ -153,9 +181,14 @@ class Isoline {
              */
             case 0b0110:
             case 0b1001:
+                __points.add(p01);
+                __points.add(p23);
+                __points.add(p02);
+                __points.add(p13);
+
                 double center = function.getValue((corners[3].getX() - corners[0].getX()) / 2,
                                                   (corners[3].getY() - corners[0].getX()) / 2);
-                type ^= (center < level) ? 0 : 0b1111;
+                type ^= (center < level) ? 0b1111 : 0;
                 if (type == 0b0110) {
                     __edges.add(new Point2D.Double[] { p01, p13 });
                     __edges.add(new Point2D.Double[] { p23, p02 });
@@ -172,6 +205,10 @@ class Isoline {
 
     Point2D.Double getTo() {
         return to;
+    }
+
+    Point2D.Double[] getPoints() {
+        return points;
     }
 
     Point2D.Double[][] getEdges() {

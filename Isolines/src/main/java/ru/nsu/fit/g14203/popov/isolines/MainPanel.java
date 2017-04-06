@@ -18,8 +18,9 @@ class MainPanel extends JPanel {
     private final static int MAX_WIDTH = 1258;
     private final static int MAX_HEIGHT = 702;
 
-    private State gridShown = new State(true);
     private State isolinesShown = new State(true);
+    private State gridShown = new State(true);
+    private State pointsShown = new State(false);
     private State interpolationOn = new State(false);
 
     private Point2D.Double from = new Point2D.Double(0, 0);
@@ -32,6 +33,7 @@ class MainPanel extends JPanel {
             double getValue(double x, double y) {
                 double X = x * 0.5 + y * 0.5;
                 double Y = -x * 0.5 + y * 0.5;
+
                 return X * X * Math.cos(X) - Y * Y * Math.sin(Y);
             }
         };
@@ -41,7 +43,8 @@ class MainPanel extends JPanel {
     private FunctionMap functionMap;
 
     MainPanel(Consumer<String> showInStatusBar, Runnable clearStatusBar) {
-        functionMap = new FunctionMap(gridShown, isolinesShown,
+        functionMap = new FunctionMap(isolinesShown,
+                                      gridShown, pointsShown,
                                       showInStatusBar, clearStatusBar);
 
         setLayout(new GridBagLayout());
@@ -58,8 +61,9 @@ class MainPanel extends JPanel {
         add(legend, constraints);
 
         Observer functionMapRepaintObserver = (o, arg) -> SwingUtilities.invokeLater(functionMap::repaint);
-        gridShown.addObserver(functionMapRepaintObserver);
         isolinesShown.addObserver(functionMapRepaintObserver);
+        gridShown.addObserver(functionMapRepaintObserver);
+        pointsShown.addObserver(functionMapRepaintObserver);
 
         Observer functionMapRecountObserver = (o, arg) -> {
             functionMap.recountFunction();
@@ -111,12 +115,20 @@ class MainPanel extends JPanel {
                                 isolineColor);
     }
 
-    State getGridShown() {
-        return gridShown;
+    State getFunctionLoaded() {
+        return legend.getFunctionLoaded();
     }
 
     State getIsolinesShown() {
         return isolinesShown;
+    }
+
+    State getGridShown() {
+        return gridShown;
+    }
+
+    State getPointsShown() {
+        return pointsShown;
     }
 
     State getInterpolationOn() {

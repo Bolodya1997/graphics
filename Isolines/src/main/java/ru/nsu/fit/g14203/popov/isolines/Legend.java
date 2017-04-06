@@ -15,8 +15,7 @@ class Legend extends JPanel {
 
     private final static int INTERPOLATION_COUNT = 225;
 
-    private boolean functionLoaded = false;
-
+    private State functionLoaded = new State(false);
     private State interpolationOn;
 
     private double min;
@@ -66,7 +65,7 @@ class Legend extends JPanel {
             }
         };
 
-        functionLoaded = true;
+        functionLoaded.setState(true);
         setImage();
     }
 
@@ -89,13 +88,10 @@ class Legend extends JPanel {
     }
 
     private void setImage() {
-        if (!functionLoaded) {
-            image = new BufferedImage(getWidth() / 2, getHeight(), BufferedImage.TYPE_INT_ARGB);
+        if (!functionLoaded.isTrue())
             return;
-        }
 
         Point2D.Double from = new Point2D.Double(0, min);
-        Point2D.Double to = new Point2D.Double(getWidth() / 2, max);
         double dy = (max - min) / (getHeight() - 1);
         image = new FunctionImage(getWidth() / 2, getHeight(),
                                   from, 1, dy,
@@ -106,8 +102,10 @@ class Legend extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (!functionLoaded)
+        if (!functionLoaded.isTrue()) {
+            g.clearRect(0, 0, getWidth(), getHeight());
             return;
+        }
 
         g.clearRect(0, 0, getWidth(), getHeight());
         g.drawImage(image, 0, 0, this);
@@ -122,7 +120,7 @@ class Legend extends JPanel {
 
 //    ------   getters   ------
 
-    boolean isFunctionLoaded() {
+    State getFunctionLoaded() {
         return functionLoaded;
     }
 

@@ -12,13 +12,16 @@ import java.util.Arrays;
 import java.util.function.Consumer;
 
 class FunctionMap extends JPanel {
+
+    private final static Color POINTS_COLOR = Color.RED;
+
     private boolean functionLoaded = false;
 
-    private State gridShown;
     private State isolinesShown;
+    private State gridShown;
+    private State pointsShown;
 
     private Consumer<String> showInStatusBar;
-    private Runnable clearStatusBar;
 
     private Function2D function;
     private FunctionImage functionImage;
@@ -33,9 +36,11 @@ class FunctionMap extends JPanel {
 
     private Isoline[] baseIsolines;
     private BufferedImage[] baseIsolinesImages;
+    private BufferedImage[] basePointsImages;
 
     private Isoline isoline;
     private BufferedImage isolineImage;
+    private BufferedImage pointsImage;
 
     private Color isolineColor;
 
@@ -45,12 +50,13 @@ class FunctionMap extends JPanel {
                               e.getButton());
     }
 
-    FunctionMap(State gridShown, State isolinesShown,
+    FunctionMap(State isolinesShown,
+                State gridShown, State pointsShown,
                 Consumer<String> showInStatusBar, Runnable clearStatusBar) {
-        this.gridShown = gridShown;
         this.isolinesShown = isolinesShown;
+        this.gridShown = gridShown;
+        this.pointsShown = pointsShown;
         this.showInStatusBar = showInStatusBar;
-        this.clearStatusBar = clearStatusBar;
 
         SingleThreadPool resizePool = new SingleThreadPool();
         addComponentListener(new ComponentAdapter() {
@@ -114,6 +120,7 @@ class FunctionMap extends JPanel {
                                                function, level))
                 .toArray(Isoline[]::new);
         baseIsolinesImages = new BufferedImage[baseIsolines.length];
+        basePointsImages = new BufferedImage[baseIsolines.length];
 
         isoline = null;
 
@@ -125,7 +132,7 @@ class FunctionMap extends JPanel {
     }
 
     void recountFunction() {
-        if (legend == null || !legend.isFunctionLoaded())
+        if (legend == null || !legend.getFunctionLoaded().isTrue())
             return;
 
         double dx = (to.getX() - from.getX()) / (getWidth() - 1);
@@ -136,20 +143,26 @@ class FunctionMap extends JPanel {
     }
 
     private void recountIsolines() {
-        if (baseIsolinesImages == null || !isolinesShown.isTrue())
+        if (baseIsolinesImages == null || (!isolinesShown.isTrue() && !pointsShown.isTrue()))
             return;
 
-        if (isoline != null)
+        if (isoline != null) {
             isolineImage = new IsolineImage(getWidth(), getHeight(),
-                    isoline, isolineColor);
+                                            isoline, isolineColor);
+            pointsImage = new PointsImage(getWidth(), getHeight(),
+                                          isoline, POINTS_COLOR);
+        }
 
-        for (int i = 0; i < baseIsolinesImages.length; i++)
+        for (int i = 0; i < baseIsolinesImages.length; i++) {
             baseIsolinesImages[i] = new IsolineImage(getWidth(), getHeight(),
-                    baseIsolines[i], isolineColor);
+                                                     baseIsolines[i], isolineColor);
+            basePointsImages[i] = new PointsImage(getWidth(), getHeight(),
+                                                  baseIsolines[i], POINTS_COLOR);
+        }
     }
 
     private void drawIsoline(MouseEvent e) {
-        if (!functionLoaded || !isolinesShown.isTrue())
+        if (!functionLoaded || (!isolinesShown.isTrue() && !pointsShown.isTrue()))
             return;
 
         double x = from.getX() + e.getX() * (to.getX() - from.getX()) / getWidth();
@@ -157,15 +170,20 @@ class FunctionMap extends JPanel {
         isoline = new Isoline(gridWidth, gridHeight,
                               from, to,
                               function, function.getValue(x, y));
+
         isolineImage = new IsolineImage(getWidth(), getHeight(),
                                         isoline, isolineColor);
+        pointsImage = new PointsImage(getWidth(), getHeight(),
+                                        isoline, POINTS_COLOR);
 
         SwingUtilities.invokeLater(this::repaint);
     }
 
     void clearIsoline() {
         isoline = null;
+
         isolineImage = null;
+        pointsImage = null;
 
         repaint();
     }
@@ -182,9 +200,12 @@ class FunctionMap extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (!functionLoaded)
-            return;
         Graphics2D g2D = (Graphics2D) g;
+
+        if (!functionLoaded) {
+            g2D.drawString("No function loaded", getWidth() / 2, getHeight() / 2);
+            return;
+        }
 
         g2D.drawImage(functionImage, 0, 0, getWidth(), getHeight(), this);
 
@@ -207,6 +228,14 @@ class FunctionMap extends JPanel {
                 g2D.drawImage(isolineImage, 0, 0, getWidth(), getHeight(), this);
 
             for (BufferedImage image : baseIsolinesImages)
+                g2D.drawImage(image, 0, 0, getWidth(), getHeight(), this);
+        }
+
+        if (pointsShown.isTrue()) {
+            if (pointsImage != null)
+                g2D.drawImage(pointsImage, 0, 0, getWidth(), getHeight(), this);
+
+            for (BufferedImage image : basePointsImages)
                 g2D.drawImage(image, 0, 0, getWidth(), getHeight(), this);
         }
     }
