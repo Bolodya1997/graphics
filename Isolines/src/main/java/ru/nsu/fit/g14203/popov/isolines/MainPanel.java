@@ -21,6 +21,7 @@ class MainPanel extends JPanel {
     private final static Point2D.Double DEFAULT_FROM = new Point2D.Double(0, 0);
     private final static Point2D.Double DEFAULT_TO = new Point2D.Double(5, 5);
 
+    private State functionShown = new State(true);
     private State isolinesShown = new State(true);
     private State gridShown = new State(true);
     private State pointsShown = new State(false);
@@ -48,7 +49,7 @@ class MainPanel extends JPanel {
     private Color isolineColor;
 
     MainPanel(Consumer<String> showInStatusBar, Runnable clearStatusBar) {
-        functionMap = new FunctionMap(isolinesShown,
+        functionMap = new FunctionMap(functionShown, isolinesShown,
                                       gridShown, pointsShown,
                                       showInStatusBar, clearStatusBar);
 
@@ -66,6 +67,7 @@ class MainPanel extends JPanel {
         add(legend, constraints);
 
         Observer functionMapRepaintObserver = (o, arg) -> SwingUtilities.invokeLater(functionMap::repaint);
+        functionShown.addObserver(functionMapRepaintObserver);
         gridShown.addObserver(functionMapRepaintObserver);
         pointsShown.addObserver(functionMapRepaintObserver);
 
@@ -104,10 +106,10 @@ class MainPanel extends JPanel {
 
         from = DEFAULT_FROM;
         to = DEFAULT_TO;
-        setArea();
+        setConfig();
     }
 
-    void setArea() {
+    void setConfig() {
         double dx = (to.getX() - from.getX()) / (MAX_WIDTH - 1);
         double dy = (to.getY() - from.getY()) / (MAX_HEIGHT - 1);
 
@@ -127,6 +129,10 @@ class MainPanel extends JPanel {
 
     State getFunctionLoaded() {
         return legend.getFunctionLoaded();
+    }
+
+    State getFunctionShown() {
+        return functionShown;
     }
 
     State getIsolinesShown() {
@@ -149,11 +155,29 @@ class MainPanel extends JPanel {
         functionMap.clearIsoline();
     }
 
+//    ------   config   ------
+
     Point2D.Double getFrom() {
         return from;
     }
 
     Point2D.Double getTo() {
         return to;
+    }
+
+    int getGridWidth() {
+        return gridWidth;
+    }
+
+    void setGridWidth(int gridWidth) {
+        this.gridWidth = gridWidth;
+    }
+
+    int getGridHeight() {
+        return gridHeight;
+    }
+
+    void setGridHeight(int gridHeight) {
+        this.gridHeight = gridHeight;
     }
 }

@@ -186,9 +186,9 @@ class Isoline {
                 __points.add(p02);
                 __points.add(p13);
 
-                double center = function.getValue((corners[3].getX() - corners[0].getX()) / 2,
-                                                  (corners[3].getY() - corners[0].getX()) / 2);
-                type ^= (center < level) ? 0b1111 : 0;
+                double center = function.getValue(corners[0].getX() + (corners[3].getX() - corners[0].getX()) / 2,
+                                                  corners[0].getY() + (corners[3].getY() - corners[0].getY()) / 2);
+                type ^= (center < level) ? 0 : 0b1111;
                 if (type == 0b0110) {
                     __edges.add(new Point2D.Double[] { p01, p13 });
                     __edges.add(new Point2D.Double[] { p23, p02 });

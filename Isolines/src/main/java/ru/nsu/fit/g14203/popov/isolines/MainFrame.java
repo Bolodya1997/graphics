@@ -27,6 +27,7 @@ public class MainFrame extends AbstractMainFrame {
 
         Icon openIcon           = new ImageIcon(MainFrame.class.getResource("Open.png"));
 
+        Icon functionIcon       = new ImageIcon(MainFrame.class.getResource("Function.png"));
         Icon isolinesIcon       = new ImageIcon(MainFrame.class.getResource("Isolines.png"));
         Icon gridIcon           = new ImageIcon(MainFrame.class.getResource("Grid.png"));
         Icon pointsIcon         = new ImageIcon(MainFrame.class.getResource("Points.png"));
@@ -49,6 +50,10 @@ public class MainFrame extends AbstractMainFrame {
                 "Exit the application", () -> System.exit(0));
 //        ------   View   ------
         JMenu viewMenu = addMenu("View", KeyEvent.VK_V);
+//              ------   Function   ------
+        JToggleMenuItem functionToggleMenuItem = addToggleMenuItem(viewMenu, "Function", functionIcon,
+                KeyEvent.VK_F, "Show function map", "Hide function map",
+                NO_ACTION, mainPanel.getFunctionShown(), mainPanel.getFunctionLoaded());
 //              ------   Isolines   ------
         JToggleMenuItem isolinesToggleMenuItem = addToggleMenuItem(viewMenu, "Isolines", isolinesIcon,
                 KeyEvent.VK_I, "Show isolines", "Hide isolines",
@@ -72,9 +77,9 @@ public class MainFrame extends AbstractMainFrame {
                 NO_ACTION, mainPanel.getInterpolationOn(), mainPanel.getFunctionLoaded());
 //        ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
-//              ------   Set area   ------
-        JMenuItem setAreaMenuItem = addMenuItem(editMenu, "Set area", setAreaIcon, KeyEvent.VK_A,
-                "Set custom function area", this::setAreaAction, mainPanel.getFunctionLoaded());
+//              ------   Config   ------
+        JMenuItem setAreaMenuItem = addMenuItem(editMenu, "Customize image", setAreaIcon, KeyEvent.VK_C,
+                "Set custom area and grid", this::setConfigAction, mainPanel.getFunctionLoaded());
 //              ------   Clear isoline   ------
         JMenuItem clearMenuItem = addMenuItem(editMenu, "Clear isolines", clearIcon, KeyEvent.VK_C,
                 "Clear user isoline", mainPanel::clearIsoline, mainPanel.getFunctionLoaded());
@@ -90,6 +95,8 @@ public class MainFrame extends AbstractMainFrame {
         addToolBarButton(topToolBar, openMenuIten);
 //              ------      ------
         topToolBar.addSeparator();
+//              ------   Function   ------
+        addToolBarToggleButton(topToolBar, functionToggleMenuItem);
 //              ------   Isolines   ------
         addToolBarToggleButton(topToolBar, isolinesToggleMenuItem);
 //              ------      ------
@@ -104,7 +111,7 @@ public class MainFrame extends AbstractMainFrame {
         addToolBarToggleButton(topToolBar, interpolationToggleMenuItem);
 //              ------      ------
         topToolBar.addSeparator();
-//              ------   Set area   ------
+//              ------   Config   ------
         addToolBarButton(topToolBar, setAreaMenuItem);
 //              ------   Clear isoline   ------
         addToolBarButton(topToolBar, clearMenuItem);
@@ -168,12 +175,17 @@ public class MainFrame extends AbstractMainFrame {
         }
     }
 
-    private void setAreaAction() {
-        new AreaDialog(this, mainPanel.getFrom(), mainPanel.getTo());
+    private void setConfigAction() {
+        ConfigDialog dialog = new ConfigDialog(this,
+                       mainPanel.getFrom(), mainPanel.getTo(),
+                       mainPanel.getGridWidth(), mainPanel.getGridHeight());
+        int[] tmp = dialog.getValues();
+        mainPanel.setGridWidth(tmp[0]);
+        mainPanel.setGridHeight(tmp[1]);
 
         State ready = new State(false);
         new Thread(() -> {
-            mainPanel.setArea();
+            mainPanel.setConfig();
             ready.setState(true);
         }).start();
 

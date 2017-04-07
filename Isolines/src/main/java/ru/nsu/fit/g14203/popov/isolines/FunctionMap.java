@@ -17,6 +17,7 @@ class FunctionMap extends JPanel {
 
     private boolean functionLoaded = false;
 
+    private State functionShown;
     private State isolinesShown;
     private State gridShown;
     private State pointsShown;
@@ -50,9 +51,10 @@ class FunctionMap extends JPanel {
                               e.getButton());
     }
 
-    FunctionMap(State isolinesShown,
+    FunctionMap(State functionShown, State isolinesShown,
                 State gridShown, State pointsShown,
                 Consumer<String> showInStatusBar, Runnable clearStatusBar) {
+        this.functionShown = functionShown;
         this.isolinesShown = isolinesShown;
         this.gridShown = gridShown;
         this.pointsShown = pointsShown;
@@ -204,6 +206,7 @@ class FunctionMap extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2D = (Graphics2D) g;
+        g2D.clearRect(0, 0, getWidth(), getHeight());
 
         if (!functionLoaded) {
             g2D.setColor(Color.GRAY);
@@ -214,7 +217,8 @@ class FunctionMap extends JPanel {
             return;
         }
 
-        g2D.drawImage(functionImage, 0, 0, getWidth(), getHeight(), this);
+        if (functionShown.isTrue())
+            g2D.drawImage(functionImage, 0, 0, getWidth(), getHeight(), this);
 
         if (gridShown.isTrue()) {
             g2D.setStroke(new BasicStroke(1, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_MITER,

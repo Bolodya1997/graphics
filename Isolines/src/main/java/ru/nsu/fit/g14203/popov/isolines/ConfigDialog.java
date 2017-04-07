@@ -6,15 +6,20 @@ import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.geom.Point2D;
 
-class AreaDialog extends JDialog {
+class ConfigDialog extends JDialog {
 
     private Point2D.Double from ;
     private Point2D.Double to;
 
-    AreaDialog(Frame owner, Point2D.Double from, Point2D.Double to) {
-        super(owner, "Set area", true);
+    private int gridWidth;
+    private int gridHeight;
 
-        setSize(300, 100);
+    ConfigDialog(Frame owner,
+                 Point2D.Double from, Point2D.Double to,
+                 int gridWidth, int gridHeight) {
+        super(owner, "Customize image", true);
+
+        setSize(300, 150);
         setResizable(false);
         setLocationRelativeTo(owner);
 
@@ -22,14 +27,22 @@ class AreaDialog extends JDialog {
 
         this.from = from;
         this.to = to;
+        this.gridWidth = gridWidth;
+        this.gridHeight = gridHeight;
 
-        addBlock("from", 0);
-        addBlock("to", 1);
+        addPointBlock("from", 0);
+        addPointBlock("to", 1);
 
-        setVisible(true);
+        addGridBlock("rows", 2);
+        addGridBlock("colimns", 3);
     }
 
-    private void addBlock(String name, int pos) {
+    int[] getValues() {
+        setVisible(true);
+        return new int[] { gridWidth, gridHeight };
+    }
+
+    private void addPointBlock(String name, int pos) {
         GridBagConstraints constraints = new GridBagConstraints(GridBagConstraints.RELATIVE, pos,
                 1, 1,
                 1, 1,
@@ -116,5 +129,55 @@ class AreaDialog extends JDialog {
         });
 
         add(yTextField, constraints);
+    }
+
+    private void addGridBlock(String name, int pos) {
+        GridBagConstraints constraints = new GridBagConstraints(GridBagConstraints.RELATIVE, pos,
+                1, 1,
+                1, 1,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
+                new Insets(2, 2, 2, 2), 0, 0);
+
+//        ------   label   ------
+        JLabel label = new JLabel(name);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        add(label, constraints);
+
+//        ------   textField   ------
+        JTextField textField = new JTextField(Integer.toString((pos == 2) ? gridWidth : gridHeight));
+
+        Runnable textFieldAction = () -> {
+            String text = Integer.toString((pos == 2) ? gridWidth : gridHeight);
+            int val;
+            try {
+                val = Integer.decode(textField.getText());
+            } catch (Exception e) {
+                textField.setText(text);
+                return;
+            }
+
+            if (val <= 0) {
+                textField.setText(text);
+                return;
+            }
+
+            if (pos == 2)
+                gridWidth = val;
+            else
+                gridHeight = val;
+
+            textField.setText(Integer.toString(val));
+        };
+
+        textField.addActionListener(e -> textFieldAction.run());
+        textField.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                textFieldAction.run();
+            }
+        });
+
+        constraints.gridwidth = 2;
+        add(textField, constraints);
     }
 }
