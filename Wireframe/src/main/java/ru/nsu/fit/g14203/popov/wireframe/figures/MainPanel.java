@@ -1,7 +1,6 @@
-package ru.nsu.fit.g14203.popov.wireframe;
+package ru.nsu.fit.g14203.popov.wireframe.figures;
 
-import javafx.geometry.Point3D;
-import ru.nsu.fit.g14203.popov.wireframe.matrix.Vector;
+import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Vector;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,7 +9,7 @@ import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.stream.Stream;
 
-class MainPanel extends JPanel {
+public class MainPanel extends JPanel {
 
     private final static int BORDER = 20;
 
@@ -20,12 +19,12 @@ class MainPanel extends JPanel {
     private LinkedList<Figure3D> figures = new LinkedList<>();
     private BufferedImage[] projectionImages;
 
-    private static Figure3D getCanvas() {
-        Figure3D canvas3D = Figure3D.getBrick(1, 1, 1);
-        canvas3D.setEdgesColor(Color.PINK);
-        canvas3D.setEdgesLineWidth(2);
+    private static Figure3D getScene() {
+        Figure3D scene = Figure3D.getBrick(1, 1, 1);
+        scene.setEdgesColor(Color.PINK);
+        scene.setEdgesLineWidth(2);
 
-        return canvas3D;
+        return scene;
     }
 
     private static Figure3D getAxises() {
@@ -46,14 +45,13 @@ class MainPanel extends JPanel {
         axisZ.color = Color.BLUE;
         axises.addEdge(axisZ);
 
-        axises.build();
         axises.setEdgesLineWidth(2);
 
         return axises;
     }
 
-    MainPanel() {
-        figures.add(getCanvas());
+    public MainPanel() {
+        figures.add(getScene());
         figures.add(getAxises());
 
         Figure3D brick = Figure3D.getBrick(0.2, 0.2, 0.2);
@@ -85,9 +83,9 @@ class MainPanel extends JPanel {
             @Override
             public void mouseDragged(MouseEvent e) {
                 double angleX = (mouseX[0] - e.getX()) * (Math.PI / 500);
-                double angleZ = (mouseY[0] - e.getY()) * (Math.PI / 500);
+                double angleY = (e.getY() - mouseY[0]) * (Math.PI / 500);
                 for (Figure3D figure : figures)
-                    figure.rotate(angleX, 0, angleZ);
+                    figure.rotateCamera(camera, angleX, angleY);
 
                 mouseX[0] = e.getX();
                 mouseY[0] = e.getY();
@@ -100,7 +98,7 @@ class MainPanel extends JPanel {
 //        ------   scroll   ------
 
         addMouseWheelListener(e -> {
-            camera.move(e.getWheelRotation() * 0.1);
+            camera.move(e.getWheelRotation());
 
             recountImages();
             repaint();
@@ -130,5 +128,13 @@ class MainPanel extends JPanel {
             for (BufferedImage projectionImage : projectionImages)
                 g2D.drawImage(projectionImage, BORDER, BORDER, this);
         }
+    }
+
+    public void addFigure(Figure3D figure) {
+        figures.add(figure);
+    }
+
+    public void removeFigure(Figure3D figure) { //  TODO: think about spline -> figure controller
+        figures.remove(figure);
     }
 }

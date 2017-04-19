@@ -1,11 +1,13 @@
-package ru.nsu.fit.g14203.popov.wireframe;
+package ru.nsu.fit.g14203.popov.wireframe.figures;
 
-import ru.nsu.fit.g14203.popov.wireframe.matrix.Vector;
+import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Vector;
 
-import java.awt.*;
-import java.util.stream.Stream;
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-class Figure3D {
+public class Figure3D {
 
     static class Edge {
         Vector[] points;
@@ -18,8 +20,7 @@ class Figure3D {
         }
     }
 
-    private Edge[] edges;
-    private Stream.Builder<Edge> __edges = Stream.builder();
+    private ArrayList<Edge> edges = new ArrayList<>();
 
     static Figure3D getBrick(double sizeX, double sizeY, double sizeZ) {
         Vector p000 = new Vector( sizeX,  sizeY,  sizeZ);
@@ -43,32 +44,24 @@ class Figure3D {
                 .addEdge(new Edge(new Vector[]{ p100.copy(), p101.copy() }))
                 .addEdge(new Edge(new Vector[]{ p100.copy(), p110.copy() }))
                 .addEdge(new Edge(new Vector[]{ p101.copy(), p111.copy() }))
-                .addEdge(new Edge(new Vector[]{ p110.copy(), p111.copy() }))
-                .build();
+                .addEdge(new Edge(new Vector[]{ p110.copy(), p111.copy() }));
     }
 
-    Figure3D addEdge(Edge edge) {
-        __edges.add(edge);
+    protected Figure3D addEdge(Edge edge) {
+        edges.add(edge);
         return this;
     }
 
-    Figure3D build() {
-        edges = __edges.build().toArray(Edge[]::new);
-        return this;
+    protected void rotate(Vector center, double angleX, double angleY, double angleZ) {
+        edges.stream()
+                .flatMap(edge -> Arrays.stream(edge.points))
+                .forEach(v -> v.rotate(center, angleX, angleY, angleZ));
     }
 
-    void rotate(double angleX, double angleY, double angleZ) {
-        for (Edge edge : edges) {
-            for (int i = 0; i < 2; i++)
-                edge.points[i].rotate(angleX, angleY, angleZ);
-        }
-    }
-
-    void shift(Vector vector) {
-        for (Edge edge : edges) {
-            for (int i = 0; i < 2; i++)
-                edge.points[i].shift(vector);
-        }
+    protected void shift(Vector vector) {
+        edges.stream()
+                .flatMap(edge -> Arrays.stream(edge.points))
+                .forEach(v -> v.shift(vector));
     }
 
     void setEdgesColor(Color color) {
@@ -81,7 +74,17 @@ class Figure3D {
             edge.lineWidth = lineWidth;
     }
 
-    Edge[] getEdges() {
+    void rotateCamera(Camera camera, double angleX, double angleY) {
+        Vector.Translation translation = new Vector.Translation(Vector.ZERO,
+                camera.axisX, camera.axisY, camera.axisZ);
+        edges.stream()
+                .flatMap(edge -> Arrays.stream(edge.points))
+                .forEach(v -> v.translateTo(translation)
+                        .rotate(angleX, angleY, 0)
+                        .translateFrom(translation));
+    }
+
+    List<Edge> getEdges() {
         return edges;
     }
 }

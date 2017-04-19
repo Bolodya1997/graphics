@@ -1,6 +1,7 @@
 package ru.nsu.fit.g14203.popov.wireframe;
 
 import ru.nsu.fit.g14203.popov.util.AbstractMainFrame;
+import ru.nsu.fit.g14203.popov.wireframe.figures.MainPanel;
 
 import javax.swing.*;
 

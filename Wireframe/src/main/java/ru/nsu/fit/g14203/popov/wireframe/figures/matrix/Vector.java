@@ -1,6 +1,10 @@
-package ru.nsu.fit.g14203.popov.wireframe.matrix;
+package ru.nsu.fit.g14203.popov.wireframe.figures.matrix;
+
+import javafx.geometry.Point3D;
 
 public class Vector extends Matrix {
+
+    public static Vector ZERO = new Vector(0, 0, 0);
 
     public static class Translation {
         private Jama.Matrix matrix;
@@ -33,6 +37,14 @@ public class Vector extends Matrix {
         }
     }
 
+    public static Vector crossProduct(Vector a, Vector b) {
+        Point3D __a = new Point3D(a.getX(), a.getY(), a.getZ());
+        Point3D __b = new Point3D(b.getX(), b.getY(), b.getZ());
+        Point3D res = __b.crossProduct(__a);
+
+        return new Vector(res.getX(), res.getY(), res.getZ());
+    }
+
     public Vector(double x, double y, double z) {
         super(new double[]{ x, y, z, 1 }, 4);
     }
@@ -57,10 +69,16 @@ public class Vector extends Matrix {
         return new Vector(matrix.copy());
     }
 
-    public Vector normalize() {
+    public Vector normalizeW() {
         matrix = matrix.times(1 / matrix.get(3, 0));
 
         return this;
+    }
+
+    public Vector normalize() {
+        double norm = matrix.getMatrix(0, 2, 0, 0).normF();
+
+        return this.resize(1 / norm);
     }
 
     @Override
@@ -83,8 +101,15 @@ public class Vector extends Matrix {
         return (Vector) super.resize(factor);
     }
 
-    public Vector translate(Translation translation) {
+    public Vector translateTo(Translation translation) {
         matrix = translation.matrix.times(matrix);
+
+        return this;
+    }
+
+    public Vector translateFrom(Translation translation) {
+        Jama.Matrix transposed = translation.matrix.transpose();
+        matrix = transposed.times(matrix);
 
         return this;
     }

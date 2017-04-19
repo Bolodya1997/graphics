@@ -1,4 +1,4 @@
-package ru.nsu.fit.g14203.popov.wireframe.matrix;
+package ru.nsu.fit.g14203.popov.wireframe.figures.matrix;
 
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
