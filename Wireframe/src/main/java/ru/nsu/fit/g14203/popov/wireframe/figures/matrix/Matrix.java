@@ -3,20 +3,20 @@ package ru.nsu.fit.g14203.popov.wireframe.figures.matrix;
 import static java.lang.Math.cos;
 import static java.lang.Math.sin;
 
-class Matrix {
+public class Matrix {
 
     Jama.Matrix matrix;
 
-    Matrix(double[][] A) {
+    public Matrix(double[][] A) {
         matrix = new Jama.Matrix(A);
-    }
-
-    Matrix(double[] vals, int m) {
-        matrix = new Jama.Matrix(vals, m);
     }
 
     Matrix(Jama.Matrix matrix) {
         this.matrix = matrix;
+    }
+
+    public static Matrix identity() {
+        return new Matrix(Jama.Matrix.identity(4, 4));
     }
 
     public Matrix rotateX(double angle) {
@@ -87,6 +87,12 @@ class Matrix {
                 { 0,      0,      0,      1 }
         });
         matrix = resize.times(matrix);
+
+        return this;
+    }
+
+    public Matrix apply(Matrix other) {
+        matrix = other.matrix.times(matrix);
 
         return this;
     }

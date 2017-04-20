@@ -1,9 +1,9 @@
 package ru.nsu.fit.g14203.popov.wireframe.figures;
 
-import javafx.geometry.Point2D;
 import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Vector;
 
 import java.awt.*;
+import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
@@ -27,7 +27,7 @@ class ProjectionImage extends BufferedImage {
 
         List<Figure3D.Edge> edges = figure3D.getEdges();
         for (Figure3D.Edge edge : edges) {
-            Point2D[] edgeProjection = projectEdge(edge);
+            Point2D.Double[] edgeProjection = projectEdge(edge);
             if (edgeProjection == null)
                 continue;
 
@@ -37,14 +37,13 @@ class ProjectionImage extends BufferedImage {
             int y2 = (int) Math.round((edgeProjection[1].getY() - FROM) * scale);
 
             Graphics2D g2D = createGraphics();
-            g2D.setStroke(new BasicStroke(edge.lineWidth));
             g2D.setColor(edge.color);
 
             g2D.drawLine(x1, y1, x2, y2);
         }
     }
 
-    private Point2D[] projectEdge(Figure3D.Edge edge) {
+    private Point2D.Double[] projectEdge(Figure3D.Edge edge) {
         Vector from = edge.points[0].copy()
                 .translateTo(translation)
                 .resize(scale * 1.25)
@@ -60,24 +59,36 @@ class ProjectionImage extends BufferedImage {
         double[] y = { from.getY(), to.getY() };
         double[] z = { from.getZ(), to.getZ() };
 
-//        if (z[0] < 0 && z[1] < 0 || z[0] > 1 && z[1] > 1)
-//            return null;
-//
-//        int min = (z[0] < z[1]) ? 0 : 1;
-//        int max = 1 - min;
-//
-//        if (z[min] < 0) {
-//            double k = (z[min] - 0) / (z[1] - z[0]);
-//            x[min] = x[min] - k * (x[1] - x[0]);
-//            y[min] = y[min] - k * (y[1] - y[0]);
-//        }
-//
-//        if (z[max] > 1) {
-//            double k = (z[max] - 1) / (z[1] - z[0]);
-//            x[max] = x[max] - k * (x[1] - x[0]);
-//            y[max] = y[max] - k * (y[1] - y[0]);
-//        }
+        try {
+            clipping(x, y, z, FROM, TO);
+            clipping(y, x, z, FROM, TO);
+            clipping(z, x, y, 0, 1);
+        } catch (Exception e) {
+            return null;
+        }
 
-        return new Point2D[]{ new Point2D(x[0], y[0]), new Point2D(x[1], y[1]) };
+        return new Point2D.Double[]{ new Point2D.Double(x[0], y[0]), new Point2D.Double(x[1], y[1]) };
+    }
+
+    private void clipping(double[] main, double[] off1, double[] off2,
+                          double min, double max) throws Exception {
+        if (main[0] < min && main[1] < min || main[0] > max && main[1] > max) {
+            throw new Exception();
+        }
+
+        int iMin = (main[0] < main[1]) ? 0 : 1;
+        int iMax = 1 - iMin;
+
+        if (main[iMin] < min) {
+            double k = (main[iMin] - min) / (main[1] - main[0]);
+            off1[iMin] = off1[iMin] - k * (off1[1] - off1[0]);
+            off2[iMin] = off2[iMin] - k * (off2[1] - off2[0]);
+        }
+
+        if (main[iMax] > max) {
+            double k = (main[iMax] - max) / (main[1] - main[0]);
+            off1[iMax] = off1[iMax] - k * (off1[1] - off1[0]);
+            off2[iMax] = off2[iMax] - k * (off2[1] - off2[0]);
+        }
     }
 }

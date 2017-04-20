@@ -4,8 +4,6 @@ import javafx.geometry.Point3D;
 
 public class Vector extends Matrix {
 
-    public static Vector ZERO = new Vector(0, 0, 0);
-
     public static class Translation {
         private Jama.Matrix matrix;
 
@@ -17,7 +15,7 @@ public class Vector extends Matrix {
                     { 0,            0,            0,            1 }
             });
 
-            Jama.Matrix shift = new Matrix(Jama.Matrix.identity(4, 4)).shift(center.copy().resize(-1)).matrix;
+            Jama.Matrix shift = Matrix.identity().shift(center.copy().resize(-1)).matrix;
             matrix = matrix.times(shift);
         }
     }
@@ -37,16 +35,25 @@ public class Vector extends Matrix {
         }
     }
 
-    public static Vector crossProduct(Vector a, Vector b) {
-        Point3D __a = new Point3D(a.getX(), a.getY(), a.getZ());
-        Point3D __b = new Point3D(b.getX(), b.getY(), b.getZ());
-        Point3D res = __b.crossProduct(__a);
+    public static Vector zero() {
+        return new Vector(0, 0, 0);
+    }
 
-        return new Vector(res.getX(), res.getY(), res.getZ());
+    public Vector crossProduct(Vector other) {
+        matrix = new Vector(getY() * other.getZ() - getZ() * other.getY(),
+                            getZ() * other.getX() - getX() * other.getZ(),
+                            getX() * other.getY() - getY() * other.getX()).matrix;
+
+        return this;
     }
 
     public Vector(double x, double y, double z) {
-        super(new double[]{ x, y, z, 1 }, 4);
+        super(new double[][]{
+                { x },
+                { y },
+                { z },
+                { 1 }
+        });
     }
 
     private Vector(Jama.Matrix matrix) {
@@ -82,6 +89,21 @@ public class Vector extends Matrix {
     }
 
     @Override
+    public Matrix rotateX(double angle) {
+        return super.rotateX(angle);
+    }
+
+    @Override
+    public Matrix rotateY(double angle) {
+        return super.rotateY(angle);
+    }
+
+    @Override
+    public Matrix rotateZ(double angle) {
+        return super.rotateZ(angle);
+    }
+
+    @Override
     public Vector rotate(double angleX, double angleY, double angleZ) {
         return (Vector) super.rotate(angleX, angleY, angleZ);
     }
@@ -105,6 +127,11 @@ public class Vector extends Matrix {
         matrix = translation.matrix.times(matrix);
 
         return this;
+    }
+
+    @Override
+    public Matrix apply(Matrix other) {
+        return super.apply(other);
     }
 
     public Vector translateFrom(Translation translation) {

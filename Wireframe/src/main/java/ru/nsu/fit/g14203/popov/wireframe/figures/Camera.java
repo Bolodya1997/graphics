@@ -4,15 +4,19 @@ import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Vector;
 
 class Camera {
 
-    final Vector position = new Vector(-5, -3, -10);
+    final Vector position = new Vector(0, 0, -10);
     private final Vector viewPoint = new Vector(0, 0, 0);
-    private final Vector up = new Vector(6, 1, 4);
+    private final Vector up = new Vector(0, 1, 0);
 
     final Vector axisZ = viewPoint.copy()
             .shift(position.copy().resize(-1))
             .normalize();
-    final Vector axisX = Vector.crossProduct(axisZ, up).normalize();
-    final Vector axisY = Vector.crossProduct(axisZ, axisX).normalize();
+    final Vector axisX = axisZ.copy().
+            crossProduct(up).
+            normalize();
+    final Vector axisY = axisZ.copy().
+            crossProduct(axisX).
+            normalize();
 
     private double frontZ = 5;
 
@@ -25,6 +29,6 @@ class Camera {
     }
 
     int getBackZ(int size) {
-        return (int) Math.round((frontZ + 1) * size);
+        return (int) Math.round((frontZ + 0.8) * size);
     }
 }

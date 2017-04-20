@@ -5,10 +5,19 @@ import java.util.List;
 
 public class SplineDialog extends JDialog {
 
-    SplineDialog(JFrame owner, List<Spline> splines) {
-        super(owner, "Spline", true);
+    public SplineDialog(JFrame owner, List<Spline> splines) {
+        super(owner, "Spline");
+
+        setSize(600, 400);
+        setResizable(false);
 
         setLocationRelativeTo(owner);
+
+//        ------   splinePanel   ------
+        SplinePanel splinePanel = new SplinePanel();
+        add(splinePanel);
+
+        SwingUtilities.invokeLater(() -> splinePanel.setSpline(new Spline()));
 
 //        ------   end of init   ------
         setVisible(true);

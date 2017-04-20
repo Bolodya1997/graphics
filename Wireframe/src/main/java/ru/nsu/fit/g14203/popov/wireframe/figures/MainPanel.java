@@ -22,41 +22,17 @@ public class MainPanel extends JPanel {
     private static Figure3D getScene() {
         Figure3D scene = Figure3D.getBrick(1, 1, 1);
         scene.setEdgesColor(Color.PINK);
-        scene.setEdgesLineWidth(2);
 
         return scene;
     }
 
-    private static Figure3D getAxises() {
-        Figure3D axises = new Figure3D();
-
-        Figure3D.Edge axisX = new Figure3D.Edge(new Vector[]{ new Vector(0, 0, 0),
-                                                              new Vector(0.7, 0,0)});
-        axisX.color = Color.RED;
-        axises.addEdge(axisX);
-
-        Figure3D.Edge axisY = new Figure3D.Edge(new Vector[]{ new Vector(0, 0, 0),
-                                                              new Vector(0, 0.7, 0)});
-        axisY.color = Color.GREEN;
-        axises.addEdge(axisY);
-
-        Figure3D.Edge axisZ = new Figure3D.Edge(new Vector[]{ new Vector(0, 0, 0),
-                                                              new Vector(0, 0, 0.7)});
-        axisZ.color = Color.BLUE;
-        axises.addEdge(axisZ);
-
-        axises.setEdgesLineWidth(2);
-
-        return axises;
-    }
-
     public MainPanel() {
         figures.add(getScene());
-        figures.add(getAxises());
 
-        Figure3D brick = Figure3D.getBrick(0.2, 0.2, 0.2);
-        brick.shift(new Vector(0.4, 0.2, 0.7));
-        figures.add(brick);
+//        Figure3D brick = Figure3D.getBrick(0.2, 0.2, 0.2);
+//        brick.shift(new Vector(0.4, 0.2, 0.7));
+//        brick.rotate(Math.PI / 2, Math.PI, Math.PI / 5);
+//        figures.add(brick);
 
 //        ------   resize   ------
 

@@ -1,5 +1,6 @@
 package ru.nsu.fit.g14203.popov.wireframe.figures;
 
+import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Matrix;
 import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Vector;
 
 import java.awt.Color;
@@ -9,16 +10,21 @@ import java.util.List;
 
 public class Figure3D {
 
-    static class Edge {
+    protected static class Edge {
         Vector[] points;
-
         Color color = Color.WHITE;
-        int lineWidth = 1;
 
-        Edge(Vector[] points) {
+        public Edge(Vector[] points) {
             this.points = points;
         }
+
+        public void setColor(Color color) {
+            this.color = color;
+        }
     }
+
+    private Matrix rotation = Matrix.identity();
+    private Vector center = Vector.zero();
 
     private ArrayList<Edge> edges = new ArrayList<>();
 
@@ -33,50 +39,81 @@ public class Figure3D {
         Vector p111 = new Vector(-sizeX, -sizeY, -sizeZ);
 
         return new Figure3D()
-                .addEdge(new Edge(new Vector[]{ p000.copy(), p001.copy() }))
-                .addEdge(new Edge(new Vector[]{ p000.copy(), p010.copy() }))
-                .addEdge(new Edge(new Vector[]{ p000.copy(), p100.copy() }))
-                .addEdge(new Edge(new Vector[]{ p001.copy(), p011.copy() }))
-                .addEdge(new Edge(new Vector[]{ p001.copy(), p101.copy() }))
-                .addEdge(new Edge(new Vector[]{ p010.copy(), p011.copy() }))
-                .addEdge(new Edge(new Vector[]{ p010.copy(), p110.copy() }))
-                .addEdge(new Edge(new Vector[]{ p011.copy(), p111.copy() }))
-                .addEdge(new Edge(new Vector[]{ p100.copy(), p101.copy() }))
-                .addEdge(new Edge(new Vector[]{ p100.copy(), p110.copy() }))
-                .addEdge(new Edge(new Vector[]{ p101.copy(), p111.copy() }))
-                .addEdge(new Edge(new Vector[]{ p110.copy(), p111.copy() }));
+                .addEdge(new Edge(new Vector[]{ p000, p001 }))
+                .addEdge(new Edge(new Vector[]{ p000, p010 }))
+                .addEdge(new Edge(new Vector[]{ p000, p100 }))
+                .addEdge(new Edge(new Vector[]{ p001, p011 }))
+                .addEdge(new Edge(new Vector[]{ p001, p101 }))
+                .addEdge(new Edge(new Vector[]{ p010, p011 }))
+                .addEdge(new Edge(new Vector[]{ p010, p110 }))
+                .addEdge(new Edge(new Vector[]{ p011, p111 }))
+                .addEdge(new Edge(new Vector[]{ p100, p101 }))
+                .addEdge(new Edge(new Vector[]{ p100, p110 }))
+                .addEdge(new Edge(new Vector[]{ p101, p111 }))
+                .addEdge(new Edge(new Vector[]{ p110, p111 }));
+    }
+
+    protected Figure3D() {
+        Figure3D.Edge axisX = new Figure3D.Edge(new Vector[]{ new Vector(0, 0, 0),
+                new Vector(0.2, 0,0)});
+        axisX.color = Color.RED;
+        addEdge(axisX);
+
+        Figure3D.Edge axisY = new Figure3D.Edge(new Vector[]{ new Vector(0, 0, 0),
+                new Vector(0, 0.2, 0)});
+        axisY.color = Color.GREEN;
+        addEdge(axisY);
+
+        Figure3D.Edge axisZ = new Figure3D.Edge(new Vector[]{ new Vector(0, 0, 0),
+                new Vector(0, 0, 0.2)});
+        axisZ.color = Color.BLUE;
+        addEdge(axisZ);
     }
 
     protected Figure3D addEdge(Edge edge) {
-        edges.add(edge);
+        Edge tmp = new Edge(new Vector[]{
+                edge.points[0].copy(),
+                edge.points[1].copy()
+        });
+        tmp.color = edge.color;
+
+        edges.add(tmp);
+
         return this;
     }
 
-    protected void rotate(Vector center, double angleX, double angleY, double angleZ) {
+    protected void rotate(double angleX, double angleY, double angleZ) {
+        Matrix matrix = Matrix.identity().rotate(center, angleX, angleY, angleZ);
+
+        rotation.apply(matrix);
         edges.stream()
                 .flatMap(edge -> Arrays.stream(edge.points))
-                .forEach(v -> v.rotate(center, angleX, angleY, angleZ));
+                .forEach(v -> v.apply(matrix));
     }
 
     protected void shift(Vector vector) {
+        center.shift(vector);
         edges.stream()
                 .flatMap(edge -> Arrays.stream(edge.points))
                 .forEach(v -> v.shift(vector));
     }
 
-    void setEdgesColor(Color color) {
-        for (Edge edge : edges)
-            edge.color = color;
+    protected void rotate(Matrix matrix) {
+        rotation.apply(matrix);
+        edges.stream()
+                .flatMap(edge -> Arrays.stream(edge.points))
+                .forEach(v -> v.apply(matrix));
     }
 
-    void setEdgesLineWidth(int lineWidth) {
-        for (Edge edge : edges)
-            edge.lineWidth = lineWidth;
+    void setEdgesColor(Color color) {
+        edges.stream()
+                .skip(3)
+                .forEach(edge -> edge.color = color);
     }
 
     void rotateCamera(Camera camera, double angleX, double angleY) {
-        Vector.Translation translation = new Vector.Translation(Vector.ZERO,
-                camera.axisX, camera.axisY, camera.axisZ);
+        Vector.Translation translation = new Vector.Translation(Vector.zero(),
+                                                                camera.axisX, camera.axisY, camera.axisZ);
         edges.stream()
                 .flatMap(edge -> Arrays.stream(edge.points))
                 .forEach(v -> v.translateTo(translation)
