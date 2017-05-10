@@ -1,5 +1,7 @@
 package ru.nsu.fit.g14203.popov.wireframe.figures;
 
+import ru.nsu.fit.g14203.popov.wireframe.FigureMover;
+import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Matrix;
 import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Vector;
 
 import java.awt.*;
@@ -7,25 +9,28 @@ import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.util.List;
 
-class ProjectionImage extends BufferedImage {
+public class ProjectionImage extends BufferedImage {
 
     private final static double FROM = -1;
     private final static double TO   = 1;
 
-    private double scale;
-
     private Vector.Translation translation;
     private Vector.Projection projection;
 
-    ProjectionImage(int size, Camera camera, Figure3D figure3D) {
+    public ProjectionImage(int size, Matrix toScene, Camera camera, Figure3D figure3D) {
         super(size, size, TYPE_INT_ARGB);
 
         translation = new Vector.Translation(camera.position, camera.axisX, camera.axisY, camera.axisZ);
-        projection = new Vector.Projection(size, size, camera.getFrontZ(size), camera.getBackZ(size));
+        projection = new Vector.Projection(camera.getFrontZ(), camera.getBackZ(),
+                camera.getWidth(), camera.getHeight());
 
-        scale = size / (TO - FROM);
+        double scale = size / (TO - FROM);
 
-        List<Figure3D.Edge> edges = figure3D.getEdges();
+        Graphics2D g2D = createGraphics();
+        if (figure3D == FigureMover.getInstance().getFigure())
+            g2D.setStroke(new BasicStroke(2));
+
+        List<Figure3D.Edge> edges = figure3D.getEdges(toScene, camera);
         for (Figure3D.Edge edge : edges) {
             Point2D.Double[] edgeProjection = projectEdge(edge);
             if (edgeProjection == null)
@@ -36,24 +41,19 @@ class ProjectionImage extends BufferedImage {
             int x2 = (int) Math.round((edgeProjection[1].getX() - FROM) * scale);
             int y2 = (int) Math.round((edgeProjection[1].getY() - FROM) * scale);
 
-            Graphics2D g2D = createGraphics();
-            g2D.setColor(edge.color);
+            g2D.setColor(edge.getColor());
 
             g2D.drawLine(x1, y1, x2, y2);
         }
     }
 
     private Point2D.Double[] projectEdge(Figure3D.Edge edge) {
-        Vector from = edge.points[0].copy()
+        Vector from = edge.getPoints()[0].copy()
                 .translateTo(translation)
-                .resize(scale * 1.25)
-                .project(projection)
-                .normalizeW();
-        Vector to = edge.points[1].copy()
+                .project(projection);
+        Vector to = edge.getPoints()[1].copy()
                 .translateTo(translation)
-                .resize(scale * 1.25)
-                .project(projection)
-                .normalizeW();
+                .project(projection);
 
         double[] x = { from.getX(), to.getX() };
         double[] y = { from.getY(), to.getY() };

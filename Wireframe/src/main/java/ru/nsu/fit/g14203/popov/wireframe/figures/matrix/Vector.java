@@ -1,14 +1,11 @@
 package ru.nsu.fit.g14203.popov.wireframe.figures.matrix;
 
-import javafx.geometry.Point3D;
-
 public class Vector extends Matrix {
 
-    public static class Translation {
-        private Jama.Matrix matrix;
+    public static class Translation extends Matrix {
 
-        public Translation(Vector center, Vector axisX, Vector axisY, Vector axisZ) {
-            matrix = new Jama.Matrix(new double[][]{
+        private static Jama.Matrix compute(Vector center, Vector axisX, Vector axisY, Vector axisZ) {
+            Jama.Matrix matrix = new Jama.Matrix(new double[][]{
                     { axisX.getX(), axisX.getY(), axisX.getZ(), 0 },
                     { axisY.getX(), axisY.getY(), axisY.getZ(), 0 },
                     { axisZ.getX(), axisZ.getY(), axisZ.getZ(), 0 },
@@ -16,22 +13,28 @@ public class Vector extends Matrix {
             });
 
             Jama.Matrix shift = Matrix.identity().shift(center.copy().resize(-1)).matrix;
-            matrix = matrix.times(shift);
+            return matrix.times(shift);
+        }
+
+        public Translation(Vector center, Vector axisX, Vector axisY, Vector axisZ) {
+            super(compute(center, axisX, axisY, axisZ));
         }
     }
 
-    public static class Projection {
-        private Jama.Matrix matrix;
+    public static class Projection extends Matrix {
 
-        public Projection(double width, double height, double frontZ, double backZ) {
+        private static Jama.Matrix compute(double frontZ, double backZ, double width, double height) {
             double depth = backZ - frontZ;
-
-            matrix = new Jama.Matrix(new double[][]{
+            return new Jama.Matrix(new double[][]{
                     { 2 * frontZ / width, 0,                   0,              0                       },
                     { 0,                  2 * frontZ / height, 0,              0                       },
                     { 0,                  0,                   frontZ / depth, -frontZ * backZ / depth },
                     { 0,                  0,                   1,              0                       }
             });
+        }
+
+        public Projection(double frontZ, double backZ, double width, double height) {
+            super(compute(frontZ, backZ, width, height));
         }
     }
 
@@ -124,14 +127,12 @@ public class Vector extends Matrix {
     }
 
     public Vector translateTo(Translation translation) {
-        matrix = translation.matrix.times(matrix);
-
-        return this;
+        return apply(translation);
     }
 
     @Override
-    public Matrix apply(Matrix other) {
-        return super.apply(other);
+    public Vector apply(Matrix other) {
+        return (Vector) super.apply(other);
     }
 
     public Vector translateFrom(Translation translation) {
@@ -142,8 +143,16 @@ public class Vector extends Matrix {
     }
 
     public Vector project(Projection projection) {
-        matrix = projection.matrix.times(matrix);
+        double z = getZ();
+
+        apply(projection);
+        matrix = matrix.times(1 / z);
 
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("[%.3f, %.3f, %.3f]", getX(), getY(), getZ());
     }
 }

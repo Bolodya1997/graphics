@@ -4,15 +4,18 @@ import ru.nsu.fit.g14203.popov.util.Sequence;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
+import java.util.List;
 import java.util.stream.Stream;
 
-public class Spline {
+public class Spline extends Observable {
 
     static class Segment {
-        Point2D[] points;
+
+        private final static int LENGTH_COUNT = 10;
+
+        private Point2D[] points;
+        private double length;
 
         Segment(Point2D[] points) {
             this.points = points;
@@ -34,16 +37,21 @@ public class Spline {
 
             return result;
         }
+
+        double getLength() {
+            Sequence sequence = new Sequence(0, 1, LENGTH_COUNT);
+
+            length = 0;
+            Stream.generate(() -> getP(sequence.next()))
+                    .limit(LENGTH_COUNT)
+                    .reduce((p1, p2) -> {
+                        length += p1.distance(p2);
+                        return p2;
+                    });
+
+            return length;
+        }
     }
-
-    private double lineFrom     = 0;
-    private double lineTo       = 1;
-
-    private double rotateFrom   = 0;
-    private double rotateTo     = Math.PI * 2;
-
-    private int lineCount       = 10;
-    private int rotateCount     = 10;
 
     private Color color;
     {
@@ -54,45 +62,85 @@ public class Spline {
     }
 
     private ArrayList<Point2D> points = new ArrayList<>();
-    private Segment[] segments;
+    private ArrayList<Segment> segments = new ArrayList<>();
+
+    public static Spline getEmptySpline() {
+        Spline spline = new Spline();
+        spline.points.clear();
+        spline.segments.clear();
+
+        return spline;
+    }
 
     public Spline() {
-        Point2D[] __points = new Point2D[]{
-                new Point2D.Double(0, 0),
-                new Point2D.Double(0.1, 1.0 / 3),
-                new Point2D.Double(2.0 / 3, 0.1),
-                new Point2D.Double(0.8, 0.5)
-        };
-
-        points.add(__points[0]);
-        points.add(__points[1]);
-        points.add(__points[2]);
-        points.add(__points[3]);
-
-        addPoint(4, new Point2D.Double(1, 1));
-        addPoint(2, new Point2D.Double(0.13, 0.75));
-        addPoint(6, new Point2D.Double(-0.5, -0.2));
+        addPoint(new Point2D.Double(-0.4358899, -0.9));
+        addPoint(new Point2D.Double(0.0, -1.0));
+        addPoint(new Point2D.Double(0.4358899, -0.9));
+        addPoint(new Point2D.Double(0.6, -0.8));
+        addPoint(new Point2D.Double(0.8, -0.6));
+        addPoint(new Point2D.Double(0.9165151, -0.4));
+        addPoint(new Point2D.Double(0.9797959, -0.2));
+        addPoint(new Point2D.Double(1.0, 0.0));
+        addPoint(new Point2D.Double(0.9797959, 0.2));
+        addPoint(new Point2D.Double(0.9165151, 0.4));
+        addPoint(new Point2D.Double(0.8, 0.6));
+        addPoint(new Point2D.Double(0.6, 0.8));
+        addPoint(new Point2D.Double(0.4358899, 0.9));
+        addPoint(new Point2D.Double(0.0, 1.0));
+        addPoint(new Point2D.Double(-0.4358899, 0.9));
     }
 
-    void addPoint(int index, Point2D point2D) {
-        points.add(index, point2D);
-        Point2D[] __points = points.stream().toArray(Point2D[]::new);
+    public void addPoint(Point2D point) {
+        points.add(point);
 
-        segments = new Segment[points.size() - 3];
-        for (int i = 0; i < segments.length; i++)
-            segments[i] = new Segment(Arrays.copyOfRange(__points, i, i + 4));
-    }
+        if (points.size() < 4)
+            return;
 
-    Segment[] getSegments() {
-        return segments;
-    }
-
-    public Point2D[] getPoints() {
-        final int size = 10;
-        Sequence sequence = new Sequence(0, 1, size);
-        return Arrays.stream(segments)
-                .flatMap(segment -> Stream.generate(() -> segment.getP(sequence.next())).limit(size))
+        Point2D[] segPoints = points.stream()
+                .skip(points.size() - 4)
                 .toArray(Point2D[]::new);
+        segments.add(new Segment(segPoints));
+    }
+
+    void removePoint() {
+        if (points.size() <= 4)
+            return;
+
+        points.remove(points.size() - 1);
+        segments.remove(segments.size() - 1);
+    }
+
+    public List<Point2D> getPoints() {
+        return points;
+    }
+
+    Point2D getPointAtLength(double t) {
+        double[] lengths = segments.stream()
+                .mapToDouble(Segment::getLength)
+                .toArray();
+
+        double pos = t * Arrays.stream(lengths).sum();
+
+        int k = 0;
+        while (k < lengths.length - 1 && pos > lengths[k])
+            pos -= lengths[k++];
+
+        Segment segment = segments.get(k);
+        return segment.getP(pos / lengths[k]);
+    }
+
+    public Point2D[] getSpline() {
+        SplineOwner splineOwner = SplineOwner.getInstance();
+        int count = splineOwner.getLengthCount() * splineOwner.getLengthK();
+
+        Sequence sequence = new Sequence(splineOwner.getLengthFrom(), splineOwner.getLengthTo(), count);
+        return Stream.generate(() -> getPointAtLength(sequence.next()))
+                .limit(count)
+                .toArray(Point2D[]::new);
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
     }
 
     public Color getColor() {

@@ -96,4 +96,14 @@ public class Matrix {
 
         return this;
     }
+
+    public Matrix applyInversed(Matrix other) {
+        matrix = other.matrix.inverse().times(matrix);
+
+        return this;
+    }
+
+    public double[][] getValues() {
+        return matrix.getArrayCopy();
+    }
 }
