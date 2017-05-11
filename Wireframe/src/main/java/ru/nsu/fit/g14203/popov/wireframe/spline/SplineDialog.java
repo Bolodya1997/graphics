@@ -64,7 +64,7 @@ public class SplineDialog extends JDialog {
         add(tabbedPane, constraints);
 
 //        ------   buttons panel   ------
-        constraints.weighty = 0.1;
+        constraints.weighty = 0.05;
         add(createButtonsPanel(), constraints);
 
 //        ------   config splineOwner   ------
@@ -119,7 +119,7 @@ public class SplineDialog extends JDialog {
         nSpinner.addChangeListener(e -> splineOwner.setLengthCount((Integer) nSpinner.getValue()));
 
         constraints.gridx = GridBagConstraints.RELATIVE;
-        constraints.weightx = 0.9;
+        constraints.weightx = 1;
         buttonsPanel.add(nSpinner, constraints);
 
 //        ------   m   ------
@@ -163,7 +163,7 @@ public class SplineDialog extends JDialog {
         });
 
         constraints.gridx = GridBagConstraints.RELATIVE;
-        constraints.weightx = 0.9;
+        constraints.weightx = 1;
         buttonsPanel.add(aSpinner, constraints);
 
 //        ------   b   ------
@@ -182,7 +182,7 @@ public class SplineDialog extends JDialog {
         });
 
         constraints.gridx = GridBagConstraints.RELATIVE;
-        constraints.weightx = 0.9;
+        constraints.weightx = 1;
         buttonsPanel.add(bSpinner, constraints);
 
 //        ------   c   ------
@@ -234,7 +234,7 @@ public class SplineDialog extends JDialog {
         JSpinner swSpinner = new JSpinner(new SpinnerNumberModel(camera.getWidth(), 0.5, 2, 0.1));
         swSpinner.addChangeListener(e -> camera.setWidth((Double) swSpinner.getValue()));
 
-        constraints.weightx = 0.9;
+        constraints.weightx = 1;
         buttonsPanel.add(swSpinner, constraints);
 
 //        ------   sh   ------
@@ -246,7 +246,7 @@ public class SplineDialog extends JDialog {
         JSpinner shSpinner = new JSpinner(new SpinnerNumberModel(camera.getHeight(), 0.5, 2, 0.1));
         shSpinner.addChangeListener(e -> camera.setHeight((Double) shSpinner.getValue()));
 
-        constraints.weightx = 0.9;
+        constraints.weightx = 1;
         buttonsPanel.add(shSpinner, constraints);
 
 //        ------   zf   ------
@@ -289,13 +289,24 @@ public class SplineDialog extends JDialog {
         constraints.weightx = 0.9;
         buttonsPanel.add(zbSpinner, constraints);
 
+//        ------   background color   ------
+        JButton backgroundColorButton = new JButton("background color");
+        backgroundColorButton.addActionListener(e -> {
+            camera.setColor(JColorChooser.showDialog(this, "Background color", camera.getColor()));
+            tabbedPane.repaint();
+        });
+
+        constraints.gridx = 1;
+        constraints.gridy = 3;
+        constraints.gridwidth = 4;
+        buttonsPanel.add(backgroundColorButton, constraints);
+
 //        ------   rotate   ------
         JCheckBox rotateCheckBox = new JCheckBox("rotate", FigureMover.getInstance().isEnable());
         rotateCheckBox.addChangeListener(e ->
                 FigureMover.getInstance().setEnable(rotateCheckBox.isSelected()));
 
-        constraints.gridx = 2;
-        constraints.gridy = 3;
+        constraints.gridx = 5;
         constraints.gridwidth = 2;
         buttonsPanel.add(rotateCheckBox, constraints);
 

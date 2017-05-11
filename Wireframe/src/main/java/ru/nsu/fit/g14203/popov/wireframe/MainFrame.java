@@ -1,5 +1,6 @@
 package ru.nsu.fit.g14203.popov.wireframe;
 
+import javafx.stage.FileChooser;
 import ru.nsu.fit.g14203.popov.util.AbstractMainFrame;
 import ru.nsu.fit.g14203.popov.wireframe.figures.Figure3D;
 import ru.nsu.fit.g14203.popov.wireframe.spline.Spline;
@@ -8,6 +9,7 @@ import ru.nsu.fit.g14203.popov.wireframe.spline.SplineOwner;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observer;
@@ -56,29 +58,69 @@ public class MainFrame extends AbstractMainFrame {
     public MainFrame() {
         super("Wireframe");
 
-        Icon splinesIcon = new ImageIcon(MainFrame.class.getResource("Function.png"));
+        Icon openIcon = new ImageIcon(MainFrame.class.getResource("Open.png"));
+        Icon saveIcon = new ImageIcon(MainFrame.class.getResource("Save.png"));
 
-        Icon resetIcon = new ImageIcon(MainFrame.class.getResource("Clear.png"));
+        Icon splinesIcon = new ImageIcon(MainFrame.class.getResource("Function.png"));
+        Icon initIcon = new ImageIcon(MainFrame.class.getResource("Clear.png"));
 
 //        ------   File   ------
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
+//              ------   Open   ------
+        JMenuItem openMenuItem = addMenuItem(fileMenu, "Open", openIcon, KeyEvent.VK_O,
+                "Load scene from file", this::openAction);
+//              ------   Save   ------
+        JMenuItem saveMenuItem = addMenuItem(fileMenu, "Save", saveIcon, KeyEvent.VK_S,
+                "Save scene into file", this::saveAction);
 //        ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
 //              ------   Splines   ------
         JMenuItem splinesMenuItem = addMenuItem(editMenu, "Splines", splinesIcon, KeyEvent.VK_S,
                 "Open splines edit dialog", this::splinesAction);
-//              ------   Reset   ------
-        JMenuItem resetMenuItem = addMenuItem(editMenu, "Reset", resetIcon, KeyEvent.VK_R,
-                "Reset camera rotation", mainPanel::resetFigures);
+//              ------   Init   ------
+        JMenuItem initMenuItem = addMenuItem(editMenu, "Init", initIcon, KeyEvent.VK_I,
+                "Set camera rotation to default", mainPanel::resetFigures);
 
         JToolBar topToolBar = addToolBar(TOP);
+//              ------   Open   ------
+        addToolBarButton(topToolBar, openMenuItem);
+//              ------   Save   ------
+        addToolBarButton(topToolBar, saveMenuItem);
 //              ------   Splines   ------
         addToolBarButton(topToolBar, splinesMenuItem);
 //              ------   Reset   ------
-        addToolBarButton(topToolBar, resetMenuItem);
+        addToolBarButton(topToolBar, initMenuItem);
 
 //        ------   end of init   ------
         setVisible(true);
+    }
+
+    private void openAction() {
+        JFileChooser fileChooser = new JFileChooser("FIT_14203_Popov_Vladimir_Life_Wireframe_Data");
+        if (fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
+            return;
+
+        try {
+            InputStream stream = new FileInputStream(fileChooser.getSelectedFile());
+            FileLoader.load(stream, figures);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error while reading data",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void saveAction() {
+        JFileChooser fileChooser = new JFileChooser("FIT_14203_Popov_Vladimir_Life_Wireframe_Data");
+        if (fileChooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
+            return;
+
+        try {
+            OutputStream stream = new FileOutputStream(fileChooser.getSelectedFile());
+            FileLoader.save(stream, figures);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error while saving data",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void splinesAction() {

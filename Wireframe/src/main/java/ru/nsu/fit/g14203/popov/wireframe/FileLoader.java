@@ -45,7 +45,7 @@ public class FileLoader {
         splineOwner.setLengthFrom(nmkabcd[3]);
         splineOwner.setLengthTo(nmkabcd[4]);
         splineOwner.setRotateFrom(nmkabcd[5]);
-        splineOwner.setLengthTo(nmkabcd[6]);
+        splineOwner.setRotateTo(nmkabcd[6]);
 
         double[] zFzBsWsH = Stream.of(nextLine(scanner))
                 .flatMap(s -> Arrays.stream(s.split(" ")))
@@ -98,9 +98,6 @@ public class FileLoader {
         int K = Integer.parseInt(nextLine(scanner));
         for (int i = 0; i < K; i++) {
             Spline spline = Spline.getEmptySpline();
-            splineOwner.addSpline(spline);
-
-            Figure3D figure = figures.get(spline);
 
             int[] RGB = Stream.of(nextLine(scanner))
                     .flatMap(s -> Arrays.stream(s.split(" ")))
@@ -116,7 +113,6 @@ public class FileLoader {
                     .filter(s -> !s.isEmpty())
                     .mapToDouble(Double::parseDouble)
                     .toArray();
-            figure.shift(new Vector(cXYZ[0], cXYZ[1], cXYZ[2]));
 
             tmp[0] = Stream.of(nextLine(scanner))
                     .flatMap(s -> Arrays.stream(s.split(" ")))
@@ -142,7 +138,6 @@ public class FileLoader {
                     { tmp[2][0], tmp[2][1], tmp[2][2], 0 },
                     { 0,         0,         0,         1 }
             });
-            figure.rotate(rotation);
 
             int N = Integer.parseInt(nextLine(scanner));
             for (int j = 0; j < N; j++) {
@@ -154,7 +149,16 @@ public class FileLoader {
                         .toArray();
                 spline.addPoint(new Point2D.Double(xy[0], xy[1]));
             }
+
+            splineOwner.addSpline(spline);
+
+            Figure3D figure = figures.get(spline);
+            figure.shift(new Vector(cXYZ[0], cXYZ[1], cXYZ[2]));
+            figure.rotate(rotation);
         }
+
+        FigureMover.getInstance().setFigure(null);
+        splineOwner.notifyObservers();
     }
 
     public static void save(OutputStream stream, Map<Spline, SplineFigure3D> figures) {
@@ -198,6 +202,12 @@ public class FileLoader {
         printer.print(cameraRotation[2][1]);
         printer.print(" ");
         printer.println(cameraRotation[2][2]);
+
+        printer.print(camera.getColor().getRed());
+        printer.print(" ");
+        printer.print(camera.getColor().getBlue());
+        printer.print(" ");
+        printer.println(camera.getColor().getGreen());
 
         int K = figures.size();
         printer.println(K);

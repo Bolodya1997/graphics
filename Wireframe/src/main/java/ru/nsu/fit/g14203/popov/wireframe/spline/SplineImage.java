@@ -1,6 +1,7 @@
 package ru.nsu.fit.g14203.popov.wireframe.spline;
 
 import ru.nsu.fit.g14203.popov.util.Sequence;
+import ru.nsu.fit.g14203.popov.wireframe.figures.Camera;
 
 import java.awt.*;
 import java.awt.geom.Point2D;
@@ -22,6 +23,9 @@ class SplineImage extends BufferedImage {
         double scaleY = (height - 1) / (to.getY() - from.getY());
 
         Graphics2D g2D = createGraphics();
+        g2D.setColor(Camera.getInstance().getColor());
+        g2D.fillRect(0, 0, getWidth(), getHeight());
+
         g2D.setStroke(new BasicStroke(0.5f));
         g2D.setColor(Color.LIGHT_GRAY);
 
