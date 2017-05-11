@@ -12,7 +12,7 @@ public class Spline extends Observable {
 
     static class Segment {
 
-        private final static int LENGTH_COUNT = 10;
+        private final static int LENGTH_COUNT = 20;
 
         private Point2D[] points;
         private double length;
@@ -114,7 +114,7 @@ public class Spline extends Observable {
         return points;
     }
 
-    Point2D getPointAtLength(double t) {
+    public Point2D getPointAtLength(double t) {
         double[] lengths = segments.stream()
                 .mapToDouble(Segment::getLength)
                 .toArray();
@@ -127,16 +127,6 @@ public class Spline extends Observable {
 
         Segment segment = segments.get(k);
         return segment.getP(pos / lengths[k]);
-    }
-
-    public Point2D[] getSpline() {
-        SplineOwner splineOwner = SplineOwner.getInstance();
-        int count = splineOwner.getLengthCount() * splineOwner.getLengthK();
-
-        Sequence sequence = new Sequence(splineOwner.getLengthFrom(), splineOwner.getLengthTo(), count);
-        return Stream.generate(() -> getPointAtLength(sequence.next()))
-                .limit(count)
-                .toArray(Point2D[]::new);
     }
 
     public void setColor(Color color) {

@@ -1,15 +1,16 @@
 package ru.nsu.fit.g14203.popov.wireframe;
 
-import javafx.stage.FileChooser;
 import ru.nsu.fit.g14203.popov.util.AbstractMainFrame;
-import ru.nsu.fit.g14203.popov.wireframe.figures.Figure3D;
 import ru.nsu.fit.g14203.popov.wireframe.spline.Spline;
 import ru.nsu.fit.g14203.popov.wireframe.spline.SplineDialog;
 import ru.nsu.fit.g14203.popov.wireframe.spline.SplineOwner;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observer;
@@ -64,6 +65,8 @@ public class MainFrame extends AbstractMainFrame {
         Icon splinesIcon = new ImageIcon(MainFrame.class.getResource("Function.png"));
         Icon initIcon = new ImageIcon(MainFrame.class.getResource("Clear.png"));
 
+        Icon aboutIcon = new ImageIcon(MainFrame.class.getResource("About.png"));
+
 //        ------   File   ------
         JMenu fileMenu = addMenu("File", KeyEvent.VK_F);
 //              ------   Open   ------
@@ -72,6 +75,11 @@ public class MainFrame extends AbstractMainFrame {
 //              ------   Save   ------
         JMenuItem saveMenuItem = addMenuItem(fileMenu, "Save", saveIcon, KeyEvent.VK_S,
                 "Save scene into file", this::saveAction);
+//              ------      ------
+        fileMenu.addSeparator();
+//              ------   Exit   ------
+        addMenuItem(fileMenu, "Exit", null, KeyEvent.VK_E,
+                "Quit the program", () -> System.exit(0));
 //        ------   Edit   ------
         JMenu editMenu = addMenu("Edit", KeyEvent.VK_E);
 //              ------   Splines   ------
@@ -80,12 +88,19 @@ public class MainFrame extends AbstractMainFrame {
 //              ------   Init   ------
         JMenuItem initMenuItem = addMenuItem(editMenu, "Init", initIcon, KeyEvent.VK_I,
                 "Set camera rotation to default", mainPanel::resetFigures);
+//        ------   Help   ------
+        JMenu helpMenu = addMenu("Help", KeyEvent.VK_H);
+//              ------   About   ------
+        addMenuItem(helpMenu, "About", aboutIcon, KeyEvent.VK_A,
+                "Show information about the program", this::showAboutDialog);
 
         JToolBar topToolBar = addToolBar(TOP);
 //              ------   Open   ------
         addToolBarButton(topToolBar, openMenuItem);
 //              ------   Save   ------
         addToolBarButton(topToolBar, saveMenuItem);
+//              ------      ------
+        topToolBar.addSeparator();
 //              ------   Splines   ------
         addToolBarButton(topToolBar, splinesMenuItem);
 //              ------   Reset   ------

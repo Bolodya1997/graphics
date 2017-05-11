@@ -1,11 +1,12 @@
 package ru.nsu.fit.g14203.popov.wireframe;
 
+import ru.nsu.fit.g14203.popov.util.Sequence;
 import ru.nsu.fit.g14203.popov.wireframe.figures.Figure3D;
 import ru.nsu.fit.g14203.popov.wireframe.figures.matrix.Vector;
 import ru.nsu.fit.g14203.popov.wireframe.spline.Spline;
 import ru.nsu.fit.g14203.popov.wireframe.spline.SplineOwner;
 
-import java.util.Arrays;
+import java.awt.geom.Point2D;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.stream.Stream;
@@ -24,52 +25,55 @@ class SplineFigure3D extends Figure3D implements Observer {
     private void recount() {
         clear();
 
-        Stream.Builder<Edge> __edges = Stream.builder();
-        Arrays.stream(spline.getSpline())
-                .reduce((p1, p2) -> {
-                    Edge tmp = new Edge(
-                            new Vector(p1.getX(), -p1.getY(), 0)
-                                    .rotate(0, 0, splineOwner.getRotateFrom()),
-                            new Vector(p2.getX(), -p2.getY(), 0)
-                                    .rotate(0, 0, splineOwner.getRotateFrom()),
-                            spline.getColor());
-                    __edges.add(tmp);
+        Sequence baseSequence = new Sequence(splineOwner.getLengthFrom(), splineOwner.getLengthTo(),
+                splineOwner.getLengthCount());
+        Stream.generate(baseSequence::next)
+                .limit(splineOwner.getLengthCount())
+                .reduce((l1, l2) -> {
+                    Point2D first = spline.getPointAtLength(l1);
+                    rotateVector(new Vector(first.getX(), -first.getY(), 0));
 
-                    return p2;
+                    Sequence offSequence = new Sequence(l1, l2, splineOwner.getLengthK());
+                    Stream.generate(offSequence::next)
+                            .limit(splineOwner.getLengthK())
+                            .map(length -> spline.getPointAtLength(length))
+                            .map(point2D -> new Vector(point2D.getX(), -point2D.getY(), 0))
+                            .reduce((v1, v2) -> {
+                                rotateEdge(new Edge(v1, v2, spline.getColor()));
+                                return v2;
+                            });
+
+                    return l2;
                 });
-        Edge[] edges = __edges.build().toArray(Edge[]::new);
 
-        double angleStep = (splineOwner.getRotateTo() - splineOwner.getRotateFrom()) /
-                splineOwner.getRotateCount();
+        Point2D last = spline.getPointAtLength(splineOwner.getLengthTo());
+        rotateVector(new Vector(last.getX(), -last.getY(), 0));
+    }
 
-        for (int i = 0; i < edges.length; i++) {
-            Edge prev = edges[i];
-            for (int j = 0; j < splineOwner.getRotateCount() + 1; j++) {
-                Edge cur = new Edge(
-                        edges[i].getPoints()[0].copy()
-                                .rotate(j * angleStep, 0, 0),
-                        edges[i].getPoints()[1].copy()
-                                .rotate(j * angleStep, 0, 0),
-                        spline.getColor());
-                addEdge(cur);
+    private void rotateVector(Vector vector) {
+        Sequence rotateSequence = new Sequence(splineOwner.getRotateFrom(), splineOwner.getRotateTo(),
+                splineOwner.getRotateCount() + 1);
+        Stream.generate(rotateSequence::next)
+                .limit(splineOwner.getRotateCount() + 1)
+                .map(angle -> vector.copy().rotate(angle, 0, 0))
+                .reduce((v1, v2) -> {
+                    addEdge(new Edge(v1, v2, spline.getColor()));
+                    return v2;
+                });
+    }
 
-                Edge edge = new Edge(
-                        prev.getPoints()[0],
-                        cur.getPoints()[0],
-                        spline.getColor());
-                addEdge(edge);
+    private void rotateEdge(Edge edge) {
+        Sequence rotateSequence = new Sequence(splineOwner.getRotateFrom(), splineOwner.getRotateTo(),
+                splineOwner.getRotateCount() + 1);
+        Stream.generate(rotateSequence::next)
+                .limit(splineOwner.getRotateCount() + 1)
+                .map(angle -> {
+                    Vector p1 = edge.getPoints()[0].copy().rotate(angle, 0, 0);
+                    Vector p2 = edge.getPoints()[1].copy().rotate(angle, 0, 0);
 
-                if (i == edges.length - 1) {
-                    Edge last = new Edge(
-                            prev.getPoints()[1],
-                            cur.getPoints()[1],
-                            spline.getColor());
-                    addEdge(last);
-                }
-
-                prev = cur;
-            }
-        }
+                    return new Edge(p1, p2, spline.getColor());
+                })
+                .forEach(this::addEdge);
     }
 
     @Override

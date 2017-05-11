@@ -118,6 +118,8 @@ public class SplineDialog extends JDialog {
         JSpinner nSpinner = new JSpinner(new SpinnerNumberModel(splineOwner.getLengthCount(), 1, 20, 1));
         nSpinner.addChangeListener(e -> splineOwner.setLengthCount((Integer) nSpinner.getValue()));
 
+        splineOwner.addObserver((o, arg) -> nSpinner.setValue(splineOwner.getLengthCount()));
+
         constraints.gridx = GridBagConstraints.RELATIVE;
         constraints.weightx = 1;
         buttonsPanel.add(nSpinner, constraints);
@@ -131,6 +133,8 @@ public class SplineDialog extends JDialog {
         JSpinner mSpinner = new JSpinner(new SpinnerNumberModel(splineOwner.getRotateCount(), 1, 30, 1));
         mSpinner.addChangeListener(e -> splineOwner.setRotateCount((Integer) mSpinner.getValue()));
 
+        splineOwner.addObserver((o, arg) -> mSpinner.setValue(splineOwner.getRotateCount()));
+
         constraints.weightx = 0.9;
         buttonsPanel.add(mSpinner, constraints);
 
@@ -142,6 +146,8 @@ public class SplineDialog extends JDialog {
 
         JSpinner kSpinner = new JSpinner(new SpinnerNumberModel(splineOwner.getLengthK(), 1, 10, 1));
         kSpinner.addChangeListener(e -> splineOwner.setLengthK((Integer) kSpinner.getValue()));
+
+        splineOwner.addObserver((o, arg) -> kSpinner.setValue(splineOwner.getLengthK()));
 
         constraints.weightx = 0.9;
         buttonsPanel.add(kSpinner, constraints);
@@ -162,6 +168,8 @@ public class SplineDialog extends JDialog {
                 splineOwner.setLengthFrom(a);
         });
 
+        splineOwner.addObserver((o, arg) -> aSpinner.setValue(splineOwner.getLengthFrom()));
+
         constraints.gridx = GridBagConstraints.RELATIVE;
         constraints.weightx = 1;
         buttonsPanel.add(aSpinner, constraints);
@@ -180,6 +188,8 @@ public class SplineDialog extends JDialog {
             else
                 splineOwner.setLengthTo(b);
         });
+
+        splineOwner.addObserver((o, arg) -> bSpinner.setValue(splineOwner.getLengthTo()));
 
         constraints.gridx = GridBagConstraints.RELATIVE;
         constraints.weightx = 1;
@@ -201,6 +211,8 @@ public class SplineDialog extends JDialog {
                 splineOwner.setRotateFrom(c);
         });
 
+        splineOwner.addObserver((o, arg) -> cSpinner.setValue(splineOwner.getRotateFrom()));
+
         constraints.gridx = GridBagConstraints.RELATIVE;
         constraints.weightx = 0.9;
         buttonsPanel.add(cSpinner, constraints);
@@ -220,6 +232,8 @@ public class SplineDialog extends JDialog {
                 splineOwner.setRotateTo(d);
         });
 
+        splineOwner.addObserver((o, arg) -> dSpinner.setValue(splineOwner.getRotateTo()));
+
         constraints.gridx = GridBagConstraints.RELATIVE;
         constraints.weightx = 0.9;
         buttonsPanel.add(dSpinner, constraints);
@@ -234,6 +248,8 @@ public class SplineDialog extends JDialog {
         JSpinner swSpinner = new JSpinner(new SpinnerNumberModel(camera.getWidth(), 0.5, 2, 0.1));
         swSpinner.addChangeListener(e -> camera.setWidth((Double) swSpinner.getValue()));
 
+        camera.addObserver((o, arg) -> swSpinner.setValue(camera.getWidth()));
+
         constraints.weightx = 1;
         buttonsPanel.add(swSpinner, constraints);
 
@@ -245,6 +261,8 @@ public class SplineDialog extends JDialog {
 
         JSpinner shSpinner = new JSpinner(new SpinnerNumberModel(camera.getHeight(), 0.5, 2, 0.1));
         shSpinner.addChangeListener(e -> camera.setHeight((Double) shSpinner.getValue()));
+
+        camera.addObserver((o, arg) -> shSpinner.setValue(camera.getHeight()));
 
         constraints.weightx = 1;
         buttonsPanel.add(shSpinner, constraints);

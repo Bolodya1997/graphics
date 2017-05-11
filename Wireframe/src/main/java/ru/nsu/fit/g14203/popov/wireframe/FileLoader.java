@@ -205,9 +205,9 @@ public class FileLoader {
 
         printer.print(camera.getColor().getRed());
         printer.print(" ");
-        printer.print(camera.getColor().getBlue());
+        printer.print(camera.getColor().getGreen());
         printer.print(" ");
-        printer.println(camera.getColor().getGreen());
+        printer.println(camera.getColor().getBlue());
 
         int K = figures.size();
         printer.println(K);
@@ -218,9 +218,9 @@ public class FileLoader {
 
             printer.print(spline.getColor().getRed());
             printer.print(" ");
-            printer.print(spline.getColor().getBlue());
+            printer.print(spline.getColor().getGreen());
             printer.print(" ");
-            printer.println(spline.getColor().getGreen());
+            printer.println(spline.getColor().getBlue());
 
             printer.print(figure.getCenter().getX());
             printer.print(" ");
