@@ -19,6 +19,9 @@ class MainPanel extends JPanel {
     private final static int BORDER = 20;
 
     private int size;
+    private int height;
+    private int width;
+
     private Camera camera = Camera.getInstance();
     {
         camera.addObserver((o, arg) -> update());
@@ -173,12 +176,15 @@ class MainPanel extends JPanel {
         if (size <= 0)
             return;
 
+        width = (int) (size * camera.getWidth());
+        height = (int) (size * camera.getHeight());
+
         Matrix toScene = computeMatrixToScene();
 
         Stream.Builder<ProjectionImage> __projectionImages = Stream.builder();
         for (Figure3D figure : figures)
-            __projectionImages.add(new ProjectionImage(this.size, toScene, camera, figure));
-        __projectionImages.add(new ProjectionImage(this.size, Matrix.identity(), camera, scene));
+            __projectionImages.add(new ProjectionImage(width, height, toScene, camera, figure));
+        __projectionImages.add(new ProjectionImage(width, height, Matrix.identity(), camera, scene));
 
         projectionImages = __projectionImages.build().toArray(ProjectionImage[]::new);
     }
@@ -189,7 +195,7 @@ class MainPanel extends JPanel {
         g2D.clearRect(0, 0, getWidth(), getHeight());
 
         g2D.setColor(camera.getColor());
-        g2D.fillRect(BORDER, BORDER, size, size);
+        g2D.fillRect(BORDER, BORDER, width, height);
 
         if (projectionImages != null) {
             for (BufferedImage projectionImage : projectionImages)

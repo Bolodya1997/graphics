@@ -17,14 +17,15 @@ public class ProjectionImage extends BufferedImage {
     private Vector.Translation translation;
     private Vector.Projection projection;
 
-    public ProjectionImage(int size, Matrix toScene, Camera camera, Figure3D figure3D) {
-        super(size, size, TYPE_INT_ARGB);
+    public ProjectionImage(int width, int height, Matrix toScene, Camera camera, Figure3D figure3D) {
+        super(width, height, TYPE_INT_ARGB);
 
         translation = new Vector.Translation(camera.position, camera.axisX, camera.axisY, camera.axisZ);
         projection = new Vector.Projection(camera.getFrontZ(), camera.getBackZ(),
                 camera.getWidth(), camera.getHeight());
 
-        double scale = size / (TO - FROM);
+        double scaleX = width / (TO - FROM);
+        double scaleY = height / (TO - FROM);
 
         Graphics2D g2D = createGraphics();
         if (figure3D == FigureMover.getInstance().getFigure())
@@ -36,10 +37,10 @@ public class ProjectionImage extends BufferedImage {
             if (edgeProjection == null)
                 continue;
 
-            int x1 = (int) Math.round((edgeProjection[0].getX() - FROM) * scale);
-            int y1 = (int) Math.round((edgeProjection[0].getY() - FROM) * scale);
-            int x2 = (int) Math.round((edgeProjection[1].getX() - FROM) * scale);
-            int y2 = (int) Math.round((edgeProjection[1].getY() - FROM) * scale);
+            int x1 = (int) Math.round((edgeProjection[0].getX() - FROM) * scaleX);
+            int y1 = (int) Math.round((edgeProjection[0].getY() - FROM) * scaleY);
+            int x2 = (int) Math.round((edgeProjection[1].getX() - FROM) * scaleX);
+            int y2 = (int) Math.round((edgeProjection[1].getY() - FROM) * scaleY);
 
             g2D.setColor(edge.getColor());
 
